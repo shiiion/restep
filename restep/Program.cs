@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using OpenTK;
 
 namespace restep
 {
@@ -10,6 +11,8 @@ namespace restep
     {
         static void Main(string[] args)
         {
+            GameWindow gw = new GameWindow(500, 500);
+            gw.Run();
         }
     }
 }
