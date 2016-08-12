@@ -1,0 +1,110 @@
+This file details all necessary classes and other data structures necessary for rendering 2D polygons
+
+for future reference, this project will be using GL 3.1, and the method of rendering will be forward rendering
+
+class RestepWindow
+	-Inherits from OpenTK's GameWindow, for easy GL window creation
+	-Handles rendering events, passes rendering control to dedicated rendering class
+	members:
+		--none--
+
+	functions:
+		public c-tor(int w, int h, string title, GraphicsContextFlags gcf)
+		-constructs a new RestepWindow, attempting to start with GL 3.1
+		-exception thrown on bad version
+		-loads the base shader
+		-exception thrown on shader creation failure
+
+class Shader
+	-Manages a single shader program intended for 2-D(vertex and fragment components)
+	-Allows seamless addition of uniforms
+	members:
+		private int VSHandle
+		-handle to the vertex shader
+
+		private int FSHandle
+		-handle to the fragment shader
+
+		private int progHandle
+		-handle to the shader program
+
+		public bool Loaded
+		-tells whether or not this shader is usable (a shader has been loaded successfully)
+
+		public bool Enabled
+		-tells whether or not this shader is enabled for use by the renderer
+
+		private Dictionary<string, int> uniformLocations
+		-list which maps a uniform's name to its location in shader code
+	
+	functions:
+		public c-tor(string shaderPath = "")
+		-calls LoadShaderwith shaderPath; if shaderPath is empty, it does nothing
+
+		public void LoadShader(string path)
+		-attempts to load a shader from a file on the disk
+		-sets loaded to true on success
+		-path variable must have no extension, as LoadShader appends them when loading the two files
+
+		public void LoadShader(string vertexSource, string fragmentSource)
+		-attempts to load a shader using the specified source code provided
+		-sets loaded to true on success
+		-exceptions are thrown for both in the case of GL error or shader compiler error
+
+		public void AddUniform(string uniformName)
+		-finds the specified uniformName in the shader program, if found it is added to the dictionary
+		-if the shader has not been successfully loaded yet, an exception is thrown
+		-if the uniform was not found, an exception is thrown
+
+		public void SetUniform__(string uniform, __ val)
+		-set of functions which all set uniform values to the specified value
+		-some include: SetUniformInt, SetUniformMat4, SetUniformFloat
+
+		public void Dispose()
+		-cleans up the shader's resources and sets loaded to false
+
+
+
+class Texture
+	-Manages a single texture stored in GL memory
+	-Texture contents are NOT saved in RAM, but the path to texture is saved
+	members:
+		public string TexturePath
+		-path to the texture in filesystem
+		public bool Loaded
+		-tells whether or not the texture is usable for rendering
+		private int textureHandle
+		-handle to the texture in GL memory
+	functions:
+		public c-tor(string path = "")
+		-calls LoadTexture with path; if path is empty, it does nothing
+
+		public void LoadTexture(string path)
+		-attempts to load an image file from the filesystem specified by path, and stores its contents in the GL texture
+		-sets loaded to true if successful
+		-throws exception if creation of texture failed
+		-throws exception if path is bad
+
+		public void BindAsPrimaryTexture()
+		-binds this texture
+		-only runs if loaded is true
+
+		public void UnbindTexture()
+		-unbinds the current texture
+
+		public void Dispose()
+		-destroys the texture in GL memory for cleanup
+
+
+
+
+abstract class FlatMesh
+	-abstract definition for any 2-D mesh
+	functions:
+		public void Render()
+		-for each global shader in shader order:
+		-if shader is not enabled, continue, else bind shader
+		-call OnShaderBound
+		-sets necessary uniforms
+		-bind and draw vertex/index array objects
+		-unbind shader

@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>35e90029-cc91-40eb-ac2a-0d4495a71550</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>restep</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Framework\Exceptions\InvalidShaderException.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Framework\Exceptions\ShaderCompileException.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Framework\Exceptions\UniformNotFoundException.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Framework\Logging\ErrorLog.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Framework\RestepGlobals.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Graphics\Renderables\FlatMesh.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Graphics\Renderables\Texture.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Graphics\Renderables\TexturedQuad.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Graphics\RestepWindow.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Graphics\Shader.cs" />
+  </ItemGroup>
+</Project>

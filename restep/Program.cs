@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using OpenTK;
+using restep.Graphics;
 
 namespace restep
 {
@@ -11,8 +7,9 @@ namespace restep
     {
         static void Main(string[] args)
         {
-            GameWindow gw = new GameWindow(500, 500);
-            gw.Run();
+            RestepWindow rw = new RestepWindow(500, 500, "whee");
+            //TEMPORARY 60 UPS 60 FPS
+            rw.Run(60, 60);
         }
     }
 }

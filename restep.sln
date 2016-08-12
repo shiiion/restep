@@ -5,7 +5,18 @@ VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "restep", "restep\restep.csproj", "{223BC27C-A818-4CEF-BD73-556FF267AA5A}"
 EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "restepcore", "restepcore\restepcore.shproj", "{35E90029-CC91-40EB-AC2A-0D4495A71550}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Design Files", "Design Files", "{56C76F45-6BBB-45D7-AEF8-ACC1157CCA5D}"
+	ProjectSection(SolutionItems) = preProject
+		Base Graphics Design.txt = Base Graphics Design.txt
+	EndProjectSection
+EndProject
 Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		restepcore\restepcore.projitems*{223bc27c-a818-4cef-bd73-556ff267aa5a}*SharedItemsImports = 4
+		restepcore\restepcore.projitems*{35e90029-cc91-40eb-ac2a-0d4495a71550}*SharedItemsImports = 13
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
