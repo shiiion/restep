@@ -10,7 +10,7 @@ namespace restep.Graphics.Renderables
     /// </summary>
     internal class TexturedQuad : FlatMesh
     {
-        private 
+        //private 
 
     }
 }

@@ -9,6 +9,7 @@ namespace restep.Graphics
 {
     internal class RestepWindow : GameWindow
     {
+        //cut down on CPU mat calculations by making mat3
         private const string BASE_SHADER_VTX = 
             @"#version 330
               precision highp float;
@@ -17,12 +18,13 @@ namespace restep.Graphics
               
               out vec2 tcoord0;
 
-              uniform mat4 transform;
+              uniform mat3 transform;
               
               void main()
               {
                   tcoord0 = texCoord;
-                  gl_Position = transform * vec4(position, 0.0, 1.0);
+                  vec3 posResult = transform * vec3(position, 1.0);
+                  gl_Position = vec4(posResult.xy, 0.0, 1.0);
               }";
 
         
@@ -62,7 +64,7 @@ namespace restep.Graphics
 
         private void LoadBaseShader()
         {
-            Shader baseShader = new Shader();
+            Shader baseShader = new Shader("baseShader");
             
             //SURROUND ME WITH TRYCATCH LATER
             baseShader.LoadShader(BASE_SHADER_VTX, BASE_SHADER_FRAG);
@@ -73,7 +75,7 @@ namespace restep.Graphics
 
             baseShader.Enabled = true;
 
-            Framework.RestepGlobals.LoadShader()
+            Framework.RestepGlobals.LoadedShaders.Add(baseShader);
         }
 
         protected override void OnRenderFrame(FrameEventArgs e)

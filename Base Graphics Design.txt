@@ -19,6 +19,9 @@ class Shader
 	-Manages a single shader program intended for 2-D(vertex and fragment components)
 	-Allows seamless addition of uniforms
 	members:
+		public string Name
+		-Name of the shader, to be used by meshes to tell which shader is which
+
 		private int VSHandle
 		-handle to the vertex shader
 
@@ -38,8 +41,8 @@ class Shader
 		-list which maps a uniform's name to its location in shader code
 	
 	functions:
-		public c-tor(string shaderPath = "")
-		-calls LoadShaderwith shaderPath; if shaderPath is empty, it does nothing
+		public c-tor(string shaderName, string shaderPath = "")
+		-sets Name to shaderName, calls LoadShaderwith shaderPath; if shaderPath is empty, it does nothing
 
 		public void LoadShader(string path)
 		-attempts to load a shader from a file on the disk
@@ -50,6 +53,9 @@ class Shader
 		-attempts to load a shader using the specified source code provided
 		-sets loaded to true on success
 		-exceptions are thrown for both in the case of GL error or shader compiler error
+
+		public void UseShader()
+		-uses the shader program
 
 		public void AddUniform(string uniformName)
 		-finds the specified uniformName in the shader program, if found it is added to the dictionary
@@ -98,13 +104,28 @@ class Texture
 
 
 
+class Transform
+	-manages 2-D transformations of a mesh
+	-results are computed into a matrix
+	functions:
+		public c-tor()
+		-initializes all matricies to identity (no transform)
+
+
 abstract class FlatMesh
 	-abstract definition for any 2-D mesh
 	functions:
 		public void Render()
-		-for each global shader in shader order:
-		-if shader is not enabled, continue, else bind shader
-		-call OnShaderBound
-		-sets necessary uniforms
-		-bind and draw vertex/index array objects
-		-unbind shader
+		-use base shader if it is being used by this mesh, call rendermesh_internal
+		-call renderwithmeshshaders
+		-for each global shader in shader order excluding the base shader:
+			-if shader is not enabled, continue, else use shader
+			-sets necessary uniforms
+			-bind and draw vertex/index array objects
+		-call RenderMeshShaders
+		
+		protected abstract void RenderWithMeshShaders()
+		-abstract function intended for rendering mesh with its own shaders
+		
+		protected virtual void RenderMesh_Internal()
+		-virtual function intended for handling the rendering of the mesh itself

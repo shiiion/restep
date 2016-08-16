@@ -17,6 +17,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\Renderables\FlatMesh.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\Renderables\Texture.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\Renderables\TexturedQuad.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Graphics\Renderables\Transform.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\RestepWindow.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\Shader.cs" />
   </ItemGroup>

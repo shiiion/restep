@@ -8,6 +8,12 @@ namespace restep.Graphics
     internal class Shader : IDisposable
     {
         /// <summary>
+        /// Public name of the shader for meshes to refer to them by
+        /// Also used for exception messages
+        /// </summary>
+        public string Name { get; private set; }
+
+        /// <summary>
         /// Handles to each shader object
         /// </summary>
         private int VSHandle;
@@ -29,8 +35,9 @@ namespace restep.Graphics
         /// </summary>
         public bool Enabled { get; set; }
 
-        public Shader(string shaderPath = "")
+        public Shader(string shaderName, string shaderPath = "")
         {
+            Name = shaderName;
             VSHandle = 0;
             FSHandle = 0;
             Loaded = false;
@@ -142,11 +149,11 @@ namespace restep.Graphics
             
             if (VSHandle == 0)
             {
-                throw new Exception("Failed to create vertex shader! GL Error code: " + GL.GetError());
+                throw new Exception("Failed to create vertex shader for shader named " + Name + "! GL Error code: " + GL.GetError());
             }
             if (FSHandle == 0)
             {
-                throw new Exception("Failed to create fragment shader! GL Error code: " + GL.GetError());
+                throw new Exception("Failed to create fragment shader for shader named " + Name + "! GL Error code: " + GL.GetError());
             }
         }
 
@@ -166,7 +173,7 @@ namespace restep.Graphics
             {
                 string error;
                 GL.GetShaderInfoLog(shader, out error);
-                throw new Framework.Exceptions.ShaderCompileException(error);
+                throw new Framework.Exceptions.ShaderCompileException("Shader named " + Name + " failed to compile. Error message: " + error);
             }
         }
 
@@ -180,7 +187,7 @@ namespace restep.Graphics
 
             if(progHandle == 0)
             {
-                throw new Exception("Failed to create shader program! GL Error code: " + GL.GetError());
+                throw new Exception("Failed to create shader program for shader named " + Name + "! GL Error code: " + GL.GetError());
             }
             
             //attach shaders to our program for linking
@@ -196,6 +203,14 @@ namespace restep.Graphics
             destroyExistingShaders();
         }
 
+        public void UseShader()
+        {
+            if(Loaded && Enabled)
+            {
+                GL.UseProgram(progHandle);
+            }
+        }
+
         #endregion
 
         #region ~uniform mapping~
@@ -204,7 +219,7 @@ namespace restep.Graphics
         {
             if(!Loaded)
             {
-                throw new Framework.Exceptions.InvalidShaderException("Shader program has not been created or has failed to create!");
+                throw new Framework.Exceptions.InvalidShaderException("Shader program has not been created or has failed to create for shader named " + Name + "!");
             }
 
             //find the uniform in our program
@@ -212,7 +227,7 @@ namespace restep.Graphics
 
             if (uniformLocation == -1)
             {
-                throw new Framework.Exceptions.UniformNotFoundException("Failed to find uniform named " + uniformName + "! GL Error code: " + GL.GetError());
+                throw new Framework.Exceptions.UniformNotFoundException("Failed to find uniform named " + uniformName + " for shader named " + Name + "! GL Error code: " + GL.GetError());
             }
 
             //map the uniform's name to its location
