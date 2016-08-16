@@ -107,9 +107,30 @@ class Texture
 class Transform
 	-manages 2-D transformations of a mesh
 	-results are computed into a matrix
+	members:
+		public Vector2 Translation
+		-defines how to translate the object
+		-setting this updates the translation matrix and invalidates the transformation cache
+		
+		public float Rotation
+		-defines how to rotate the object
+		-setting this updates the rotation matrix and invalidates the transformation cache
+		
+		public Vector2 Scale
+		-defines how to scale the object on X and Y
+		-setting this updates the scale matrix and invalidates the transformation cache
+		
+		public Vector2 ScreenSpace
+		-defines how large the viewport is in pixels
+		-setting this updates the screenSpace matrix and invalidates the transformation cache
+		
+		public Matrix3 Transformation
+		-the resultant transformation matrix to be sent to the shader
+		-if the cache is out of date, the transformation cache is updated
+
 	functions:
-		public c-tor()
-		-initializes all matricies to identity (no transform)
+		public c-tor(Vector2 screenSpace)
+		-initialize screenSpace matrix and default all others
 
 
 abstract class FlatMesh

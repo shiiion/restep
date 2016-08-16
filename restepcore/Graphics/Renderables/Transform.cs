@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using OpenTK;
-
+﻿using OpenTK;
 
 namespace restep.Graphics.Renderables
 {
@@ -72,6 +68,27 @@ namespace restep.Graphics.Renderables
             }
         }
 
+        private Matrix3 scrmat;
+        private Vector2 screenSpace;
+        /// <summary>
+        /// Defines the size of the screen
+        /// Modifying this value invalidates the transformation cache
+        /// </summary>
+        public Vector2 ScreenSpace
+        {
+            get
+            {
+                return screenSpace;
+            }
+
+            set
+            {
+                screenSpace = value;
+                refreshResult = true;
+                CreateScreenspace(screenSpace, out scrmat);
+            }
+        }
+
         private bool refreshResult;
         private Matrix3 cachedTransform;
         /// <summary>
@@ -89,51 +106,41 @@ namespace restep.Graphics.Renderables
                 return cachedTransform;
             }
         }
+        
 
-        private Matrix3 scrmat;
-        private Vector2 screenSpace;
-        /// <summary>
-        /// Defines the size of the screen
-        /// </summary>
-        public Vector2 ScreenSpace
+        public Transform(Vector2 screenSpace)
         {
-            get
-            {
-                return screenSpace;
-            }
-
-            set
-            {
-
-            }
-        }
-
-        public Transform()
-        {
-            tmat = Matrix3.Identity;
-            rmat = Matrix3.Identity;
-            smat = Matrix3.Identity;
-            cachedTransform = Matrix3.Identity;
+            Translation = Vector2.Zero;
+            Rotation = 0;
+            Scale = Vector2.Zero;
+            ScreenSpace = screenSpace;
         }
 
         private void updateTransformCache()
         {
-            //transform order: translation * (rotation * scale)
-            cachedTransform = Matrix3.Mult(tmat, Matrix3.Mult(rmat, smat));
+            //transform order: screenspace * (translation * (rotation * scale))
+            cachedTransform = Matrix3.Mult(scrmat, Matrix3.Mult(tmat, Matrix3.Mult(rmat, smat)));
             refreshResult = false;
         }
 
         private void CreateScreenspace(Vector2 screenDims, out Matrix3 outTransform)
         {
-            Vect
+            /* 2-D screenspace from matrix 3 (mix of scale and translation)
+            [2/W   0    -1]
+            [0    -2/H   1]
+            [0     0     1]
+            */
+            outTransform.Row0 = new Vector3((2 / screenDims.X), 0, -1);
+            outTransform.Row1 = new Vector3(0, (-2 / screenDims.Y), 1);
+            outTransform.Row2 = new Vector3(0, 0, 1);
         }
 
         private void CreateTransformation(Vector2 transform, out Matrix3 outTransform)
         {
             /* 2-D transformation from Matrix3:
-            1 0 X
-            0 1 Y
-            0 0 1
+            [1     0     X]
+            [0     1     Y]
+            [0     0     1]
             */
             outTransform.Row0 = new Vector3(1, 0, transform.X);
             outTransform.Row1 = new Vector3(0, 1, transform.Y);
