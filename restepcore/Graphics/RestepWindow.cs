@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
@@ -7,6 +6,10 @@ using restep.Framework.Logging;
 
 namespace restep.Graphics
 {
+    /// <summary>
+    /// Window which will display all GL rendered components
+    /// <para>This class is a singleton, see <see cref="Instance"/> and <see cref="Initialize(int, int, string, GraphicsContextFlags)"/></para>
+    /// </summary>
     internal class RestepWindow : GameWindow
     {
         public static bool IsInitialized
@@ -16,6 +19,10 @@ namespace restep.Graphics
         } = false;
 
         private static RestepWindow instance;
+        /// <summary>
+        /// Singleton instance of this class
+        /// Initialize must be called before trying to access this
+        /// </summary>
         public static RestepWindow Instance
         {
             get
@@ -24,6 +31,7 @@ namespace restep.Graphics
                 {
                     return instance;
                 }
+                //TODO: log me
                 throw new Exception("Restep window has not been initialized yet!");
             }
         }
@@ -32,8 +40,10 @@ namespace restep.Graphics
         private RestepWindow(int width, int height, string title, GraphicsContextFlags gcf)
             : base(width, height, new GraphicsMode(new ColorFormat(8, 8, 8, 8), 16), title, 0, DisplayDevice.Default, 3, 1, GraphicsContextFlags.Default)
         {
+            //TODO: move .log files to InfoLog folder
             MessageLogger.OpenLog("restepwinlog", "restep_window.log", true, "To log information about the main restep window");
             string version = GL.GetString(StringName.Version);
+            //TODO: log me
             if(!version.StartsWith("3.1"))
             {
                 throw new Exception("Was not able to get requested GL version!");
@@ -41,6 +51,13 @@ namespace restep.Graphics
             LoadBaseShader();
         }
 
+        /// <summary>
+        /// Initialize the static instance of RestepWindow
+        /// </summary>
+        /// <param name="width">(client area?)width of the window</param>
+        /// <param name="height">(client area?)height of the window</param>
+        /// <param name="title">Title of the window</param>
+        /// <param name="gcf">GL Graphics context flags</param>
         public static void Initialize(int width, int height, string title, GraphicsContextFlags gcf = GraphicsContextFlags.Default)
         {
             instance = new RestepWindow(width, height, title, gcf);
@@ -116,6 +133,10 @@ namespace restep.Graphics
 
         #endregion
 
+        /// <summary>
+        /// Override of OpenTK function for rendering of frame
+        /// </summary>
+        /// <param name="e"></param>
         protected override void OnRenderFrame(FrameEventArgs e)
         {
             

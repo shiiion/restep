@@ -8,10 +8,19 @@ using OpenTK.Graphics.OpenGL;
 
 namespace restep.Graphics.Renderables
 {
+    /// <summary>
+    /// Represents a texture, both on disk and in GL
+    /// </summary>
     internal class Texture : IDisposable
     {
+        /// <summary>
+        /// Path to the texture on disk
+        /// </summary>
         public string TexturePath { get; private set; }
 
+        /// <summary>
+        /// Whether or not the texture has been loaded into GL memory
+        /// </summary>
         public bool Loaded { get; private set; }
 
         private int textureHandle;
@@ -57,6 +66,11 @@ namespace restep.Graphics.Renderables
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
         }
 
+        /// <summary>
+        /// Attempts to load the texture in one go from path
+        /// <para>Throws Exception on failure</para>
+        /// </summary>
+        /// <param name="path">Path to the texture on disk</param>
         public void LoadTexture(string path)
         {
             Bitmap bmp = null;
@@ -89,6 +103,9 @@ namespace restep.Graphics.Renderables
             }
         }
 
+        /// <summary>
+        /// Binds this texture as the primary sampler (diffuse) only if loaded
+        /// </summary>
         public void BindAsPrimaryTexture()
         {
             if(Loaded)
@@ -97,6 +114,9 @@ namespace restep.Graphics.Renderables
             }
         }
 
+        /// <summary>
+        /// Binds the null texture as the primary sampler
+        /// </summary>
         public void UnbindTexture()
         {
             GL.BindTexture(TextureTarget.Texture2D, 0);

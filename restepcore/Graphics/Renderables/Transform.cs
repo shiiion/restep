@@ -2,6 +2,10 @@
 
 namespace restep.Graphics.Renderables
 {
+    /// <summary>
+    /// Represents a 2-D transformation, and gives a resulting 3x3 matrix
+    /// <para>All shaders will use a 3x3 transformation matrix rather than 4x4 or 2x2</para>
+    /// </summary>
     internal class Transform
     {
         private Matrix3 tmat;

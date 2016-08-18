@@ -5,6 +5,9 @@ using System;
 
 namespace restep.Graphics
 {
+    /// <summary>
+    /// Represents a compiled GLSL shader program
+    /// </summary>
     internal class Shader : IDisposable
     {
         /// <summary>
@@ -51,9 +54,9 @@ namespace restep.Graphics
         #region ~shader program loading~
 
         /// <summary>
-        /// attempts to load both vertex and fragment shaders in one go from the specified files
+        /// Attempts to load both vertex and fragment shaders in one go from the specified files
         /// </summary>
-        /// <param name="path">the path to the shader excluding its extension (.vs/.fs)</param>
+        /// <param name="path">The path to the shader excluding its extension (.vs/.fs)</param>
         public void LoadShader(string path)
         {
             try
@@ -89,10 +92,10 @@ namespace restep.Graphics
         }
 
         /// <summary>
-        /// attempts to load both vertex and fragment shaders in one go using the specified code provided
+        /// Attempts to load both vertex and fragment shaders in one go using the specified code provided
         /// </summary>
-        /// <param name="vertexSource">source for which vertex shader will compile</param>
-        /// <param name="fragmentSource">source for which fragment shader will compile</param>
+        /// <param name="vertexSource">Source for which vertex shader will compile</param>
+        /// <param name="fragmentSource">Source for which fragment shader will compile</param>
         public void LoadShader(string vertexSource, string fragmentSource)
         {
             try
@@ -203,6 +206,9 @@ namespace restep.Graphics
             destroyExistingShaders();
         }
 
+        /// <summary>
+        /// Tells GL to use the program if loaded and enabled
+        /// </summary>
         public void UseShader()
         {
             if(Loaded && Enabled)
@@ -215,6 +221,11 @@ namespace restep.Graphics
 
         #region ~uniform mapping~
         
+        /// <summary>
+        /// Search compiled shader for a uniform 
+        /// <para>Throws Exception on failure</para>
+        /// </summary>
+        /// <param name="uniformName">The name of the uniform to search</param>
         public void AddUniform(string uniformName)
         {
             if(!Loaded)
@@ -234,6 +245,11 @@ namespace restep.Graphics
             uniformLocations.Add(uniformName, uniformLocation);
         }
 
+        /// <summary>
+        /// Sets a mat3 uniform
+        /// </summary>
+        /// <param name="uniformName">Name of the mat3</param>
+        /// <param name="matRef">Matrix3 to copy from</param>
         public void SetUniformMat3(string uniformName, OpenTK.Matrix3 matRef)
         {
             int location;
@@ -246,6 +262,11 @@ namespace restep.Graphics
             GL.UniformMatrix3(location, false, ref matRef);
         }
 
+        /// <summary>
+        /// Sets an integer uniform
+        /// </summary>
+        /// <param name="uniformName">Name of the int</param>
+        /// <param name="i">Int to copy from</param>
         public void SetUniformInt(string uniformName, int i)
         {
             int location;
@@ -258,6 +279,11 @@ namespace restep.Graphics
             GL.Uniform1(location, i);
         }
 
+        /// <summary>
+        /// Sets a float uniform
+        /// </summary>
+        /// <param name="uniformName">Name of the float</param>
+        /// <param name="fl">Float to copy from</param>
         public void SetUniformFloat(string uniformName, float fl)
         {
             int location;
@@ -270,6 +296,12 @@ namespace restep.Graphics
             GL.Uniform1(location, fl);
         }
 
+        /// <summary>
+        /// Sets a vec2 uniform
+        /// </summary>
+        /// <param name="uniformName">Name of the vec2</param>
+        /// <param name="x">X component of the vec2</param>
+        /// <param name="y">Y component of the vec2</param>
         public void SetUniformVec2(string uniformName, float x, float y)
         {
             int location;
@@ -282,6 +314,13 @@ namespace restep.Graphics
             GL.Uniform2(location, x, y);
         }
 
+        /// <summary>
+        /// Sets a vec3 uniform
+        /// </summary>
+        /// <param name="uniformName">Name of the vec3</param>
+        /// <param name="x">X component of the vec3</param>
+        /// <param name="y">Y component of the vec3</param>
+        /// <param name="z">Z component of the vec3</param>
         public void SetUniformVec3(string uniformName, float x, float y, float z)
         {
             int location;
@@ -294,6 +333,15 @@ namespace restep.Graphics
             GL.Uniform3(location, x, y, z);
         }
 
+
+        /// <summary>
+        /// Sets a vec4 uniform
+        /// </summary>
+        /// <param name="uniformName">Name of the vec4</param>
+        /// <param name="x">X component of the vec4</param>
+        /// <param name="y">Y component of the vec4</param>
+        /// <param name="z">Z component of the vec4</param>
+        /// <param name="w">W component of the vec4</param>
         public void SetUniformVec4(string uniformName, float x, float y, float z, float w)
         {
             int location;

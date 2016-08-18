@@ -5,6 +5,9 @@ using System.Threading.Tasks;
 
 namespace restep.Framework.Logging
 {
+    /// <summary>
+    /// Represents a type of log message
+    /// </summary>
     public enum MessageType
     {
         ///<summary>Message describes successful execution of important task</summary>

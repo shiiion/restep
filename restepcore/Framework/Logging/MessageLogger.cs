@@ -3,20 +3,34 @@ using System.Collections.Generic;
 
 namespace restep.Framework.Logging
 {
+    /// <summary>
+    /// Manages a list of opened LogStreams
+    /// </summary>
     internal class MessageLogger
     {
         //the LogStream abstraction will exist for a purpose one day im sure
         private static Dictionary<string, LogStream> openedLogs = new Dictionary<string, LogStream>();
-        
 
-        public static LogFile OpenLog(string logAlias, string logPath, bool append, string purpose = "")
+        /// <summary>
+        /// Creates a new instance of LogFile and maps logName to the instance
+        /// </summary>
+        /// <param name="logName">Name by which to refer to this LogStream</param>
+        /// <param name="logPath">Path to the logfile, not required to exist</param>
+        /// <param name="append">If false, contents of file are overwritten, otherwise all further log entries are appended to the end</param>
+        /// <param name="purpose">Purpose of this logfile (placed at the top of the logfile)</param>
+        /// <returns>The new LogFile instance</returns>
+        public static LogFile OpenLog(string logName, string logPath, bool append, string purpose = "")
         {
-            LogFile newLog = new LogFile(logAlias, logPath, append, purpose);
-            openedLogs.Add(logAlias, newLog);
+            LogFile newLog = new LogFile(logName, logPath, append, purpose);
+            openedLogs.Add(logName, newLog);
 
             return newLog;
         }
 
+        /// <summary>
+        /// See <seealso cref="LogStream.LogMessage(string, MessageType, string, bool)"/>
+        /// </summary>
+        /// <param name="logName">Logfile name to search for in log hashmap</param>
         public static void LogMessage(string logName, string alias, MessageType type, string message, bool timestamp)
         {
             LogStream value;
@@ -26,6 +40,10 @@ namespace restep.Framework.Logging
             }
         }
 
+        /// <summary>
+        /// Closes and removes all references to the LogStream mapped to by logName
+        /// </summary>
+        /// <param name="logName">Logfile name to search for in log hashmap</param>
         public static void CloseLog(string logName)
         {
             LogStream value;
