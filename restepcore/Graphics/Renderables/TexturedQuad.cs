@@ -8,9 +8,9 @@ namespace restep.Graphics.Renderables
     /// <summary>
     /// Class representing vertices and texture for a textured quad
     /// </summary>
-    internal class TexturedQuad : FlatMesh
-    {
+    //internal class TexturedQuad : FlatMesh
+    //{
         //private 
 
-    }
+    //}
 }

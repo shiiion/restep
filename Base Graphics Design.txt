@@ -3,17 +3,23 @@ This file details all necessary classes and other data structures necessary for 
 for future reference, this project will be using GL 3.1, and the method of rendering will be forward rendering
 
 class RestepWindow
+	-Singleton class (only one window should exist for GL control?)
 	-Inherits from OpenTK's GameWindow, for easy GL window creation
 	-Handles rendering events, passes rendering control to dedicated rendering class
 	members:
-		--none--
+		public static RestepWindow Instance
+		-singleton instance of the window
+		-window must be initialized by calling Initialize
 
 	functions:
-		public c-tor(int w, int h, string title, GraphicsContextFlags gcf)
+		private c-tor(int w, int h, string title, GraphicsContextFlags gcf)
 		-constructs a new RestepWindow, attempting to start with GL 3.1
 		-exception thrown on bad version
 		-loads the base shader
 		-exception thrown on shader creation failure
+
+		public static void Initialize(int w, int h, string title, GrahpicsContextFlags gcf)
+		-creates a new RestepWindow instance
 
 class Shader
 	-Manages a single shader program intended for 2-D(vertex and fragment components)

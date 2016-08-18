@@ -12,25 +12,41 @@ namespace restep.Graphics.Renderables
         /// </summary>
         public bool UsingBaseShader { get; set; }
 
+        public Transform Transformation { get; set; }
+
         protected uint VAO;
         protected int VAODrawCount;
 
+        public FlatMesh()
+        {
+            Transformation = new Transform(Framework.RestepGlobals.ContentAreaSize);
+        }
 
         public void Render()
         {
-            foreach(Shader s in Framework.RestepGlobals.LoadedShaders)
+            //always garunteed 1 shader, else the program won't run this 
+            Shader baseShader = Framework.RestepGlobals.LoadedShaders[0];
+            if(baseShader.Loaded && baseShader.Enabled && UsingBaseShader)
             {
-                if(!s.Loaded || !s.Enabled || (!UsingBaseShader &&)
-                {
-                    continue;
-                }
-                s.UseShader();
+                baseShader.UseShader();
+                OnBindGlobalShader(baseShader);
                 RenderMesh_Internal();
             }
-            RenderWithMeshShaders();
-        }
 
-        public abstract void PreRender();
+            RenderWithMeshShaders();
+
+            for (int a = 1; a < Framework.RestepGlobals.LoadedShaders.Count; a++)
+            {
+                Shader s = Framework.RestepGlobals.LoadedShaders[a];
+
+                if(s.Loaded && s.Enabled)
+                {
+                    s.UseShader();
+                    OnBindGlobalShader(baseShader);
+                    RenderMesh_Internal();
+                }
+            }
+        }
 
         protected virtual void RenderMesh_Internal()
         {
@@ -40,5 +56,12 @@ namespace restep.Graphics.Renderables
         }
 
         protected abstract void RenderWithMeshShaders();
+
+        public abstract void PreRender();
+
+        protected virtual void OnBindGlobalShader(Shader gs)
+        {
+            gs.SetUniformMat3("transform", Transformation.Transformation);
+        }
     }
 }

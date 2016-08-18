@@ -234,7 +234,7 @@ namespace restep.Graphics
             uniformLocations.Add(uniformName, uniformLocation);
         }
 
-        public void SetUniformMat4(string uniformName, ref OpenTK.Matrix4 matRef)
+        public void SetUniformMat3(string uniformName, OpenTK.Matrix3 matRef)
         {
             int location;
 
@@ -243,7 +243,7 @@ namespace restep.Graphics
                 return;
             }
 
-            GL.UniformMatrix4(location, false, ref matRef);
+            GL.UniformMatrix3(location, false, ref matRef);
         }
 
         public void SetUniformInt(string uniformName, int i)
