@@ -40,8 +40,6 @@ namespace restep.Graphics
         private RestepWindow(int width, int height, string title, GraphicsContextFlags gcf)
             : base(width, height, new GraphicsMode(new ColorFormat(8, 8, 8, 8), 16), title, 0, DisplayDevice.Default, 3, 1, GraphicsContextFlags.Default)
         {
-            //TODO: move .log files to InfoLog folder
-            MessageLogger.OpenLog("restepwinlog", "restep_window.log", true, "To log information about the main restep window");
             string version = GL.GetString(StringName.Version);
             //TODO: log me
             if(!version.StartsWith("3.1"))

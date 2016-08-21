@@ -139,6 +139,10 @@ class Transform
 		-initialize screenSpace matrix and default all others
 
 
+class VertexData
+	-Intermediate between a FlatMesh and pure vertex data
+
+
 abstract class FlatMesh
 	-abstract definition for any 2-D mesh
 	functions:
@@ -149,10 +153,46 @@ abstract class FlatMesh
 			-if shader is not enabled, continue, else use shader
 			-sets necessary uniforms
 			-bind and draw vertex/index array objects
-		-call RenderMeshShaders
 		
 		protected abstract void RenderWithMeshShaders()
-		-abstract function intended for rendering mesh with its own shaders
+		-abstract function intended for rendering mesh classes with their own shaders
 		
 		protected virtual void RenderMesh_Internal()
 		-virtual function intended for handling the rendering of the mesh itself
+
+		public abstract void InitMeshVertices()
+		-abstract function for mesh classes that have hardcoded vertex data
+
+		public abstract void InitMeshVertices(VertexData data)
+		-abstract function for mesh classes that load vertex data from another source
+
+		public abstract void PreRender()
+		-abstract function for setting up a mesh before it is rendered
+
+		protected virtual void OnBindGlobalShader(Shader gs)
+		-function for assigning uniform values to a given global shader
+
+	members:
+		public bool Loaded
+		-Has the mesh loaded all resources successfully?
+		public bool UsingBaseShader
+		-Tells whether or not the mesh is using the base shader
+		public Transform Transformation
+		-The transformation data of the mesh
+
+class TexturedQuad : FlatMesh
+	-class representing a textured square
+	functions:
+		c-tor(string texPath = "")
+		-constructs a textured quad, as well as a Texture using the given path
+		-does NOT initialize vertices
+		public override void InitMeshVertices()
+		-sets up a quad using the TexturedQuad_Internal class
+		protected override void RenderMesh_Internal()
+		-binds the texture and calls base
+		protected override void RenderWithMeshShaders()
+		--
+		public override void PreRender()
+		--
+		protected override void OnBindGlobalShader(Shader gs)
+		--

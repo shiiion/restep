@@ -1,0 +1,10 @@
+This file is intended to list all tasks which i was too lazy/stupid to place into .cs files directly
+!!UPDATE THIS FILE FOR EVERY COMMIT!!
+
+TODO: Change exceptions in Shader and Texture classes to also log errors, rather then expecting them to be caught and logged
+TODO: Design a way to have different shaders get the uniforms they require without making a different class for each
+TODO: Design and write VertexData classes
+TODO: Texture intermediate class
+TODO: MessageLogger's InitializeRestepLogs function call at beginning of program
+TODO: Manage rendering meshes in RestepWindow's render function
+TODO: Split the base shader into a TextureShader and ColorShader

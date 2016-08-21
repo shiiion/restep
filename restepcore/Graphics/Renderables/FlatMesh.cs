@@ -1,29 +1,80 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using restep.Graphics.Intermediate;
 using OpenTK.Graphics.OpenGL;
+using System.Runtime.InteropServices;
+using restep.Framework.Logging;
 
 namespace restep.Graphics.Renderables
 {
-    internal abstract class FlatMesh
+    internal abstract class FlatMesh : IDisposable
     {
+        public static readonly int BUFFER_COUNT = 2;
+
+        /// <summary>
+        /// Tells whether or not the mesh has successfully loaded all of its data
+        /// </summary>
+        public bool Loaded { get; protected set; } = false;
+
         /// <summary>
         /// If false, the mesh will ignore the first shader in LoadedShaders
         /// </summary>
         public bool UsingBaseShader { get; set; }
 
+        /// <summary>
+        /// Transformation data of the mesh
+        /// </summary>
         public Transform Transformation { get; set; }
+        
+        protected uint[] VBO;
+        protected int indexCount;
 
-        protected uint VAO;
-        protected int VAODrawCount;
+        /// <summary>
+        /// Vertex structure used by ALL shaders for restep
+        /// </summary>
+        [StructLayout(LayoutKind.Sequential)]
+        public struct BufferData
+        {
+            public BufferData(float x, float y, float u, float v)
+            {
+                this.x = x;
+                this.y = y;
+                this.u = u;
+                this.v = v;
+            }
+
+            public float x, y;
+            public float u, v;
+        };
 
         public FlatMesh()
         {
             Transformation = new Transform(Framework.RestepGlobals.ContentAreaSize);
         }
 
+        /// <summary>
+        /// Initializes a mesh that has hardcoded vertex data (e.g. TexturedQuad)
+        /// </summary>
+        /// 
+        public abstract void InitMeshVertices();
+
+        //TODO: make me notvirtual? (no abstraction required)
+        /// <summary>
+        /// Initializes a mesh that gets its vertex data from another source
+        /// </summary>
+        /// <param name="data">Vertex data to use</param>
+        public abstract void InitMeshVertices(VertexData data);
+
+
+        /// <summary>
+        /// Renders the mesh with all enabled shaders
+        /// </summary>
         public void Render()
         {
+            if(!Loaded)
+            {
+                MessageLogger.LogMessage(MessageLogger.RENDER_LOG, "FlatMesh", MessageType.Error, $"Failed to render mesh! Mesh has not been loaded. Classtype: {GetType().Name}", true);
+                return;
+            }
             //always garunteed 1 shader, else the program won't run this 
             Shader baseShader = Framework.RestepGlobals.LoadedShaders[0];
             if(baseShader.Loaded && baseShader.Enabled && UsingBaseShader)
@@ -48,20 +99,47 @@ namespace restep.Graphics.Renderables
             }
         }
 
+        /// <summary>
+        /// Called after a shader has been set up and the mesh is ready to be rendered
+        /// <para>Override this if your mesh class has special rendering setup to do before any rendering is done</para>
+        /// </summary>
         protected virtual void RenderMesh_Internal()
         {
-            GL.BindVertexArray(VAO);
-            GL.DrawArrays(PrimitiveType.Triangles, 0, VAODrawCount);
-            GL.BindVertexArray(0);
+            GL.EnableVertexAttribArray(0);
+            GL.EnableVertexAttribArray(1);
+
+            GL.BindBuffer(BufferTarget.ArrayBuffer, VBO[0]);
+
+            GL.VertexAttribPointer(0, 2, VertexAttribPointerType.Float, false, 16, 0);
+            GL.VertexAttribPointer(1, 2, VertexAttribPointerType.Float, false, 16, 8);
+
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, VBO[1]);
+            GL.DrawElements(BeginMode.Triangles, indexCount, DrawElementsType.UnsignedInt, 0);
+
+            GL.DisableVertexAttribArray(0);
+            GL.DisableVertexAttribArray(1);
         }
 
+        /// <summary>
+        /// Called after the base shader has been used, but before other global shaders have been used
+        /// <para>Override this if your mesh class has its own kind of shaders</para>
+        /// </summary>
         protected abstract void RenderWithMeshShaders();
 
+        /// <summary>
+        /// Called before Render is called. Used to set up rendering a mesh.
+        /// </summary>
         public abstract void PreRender();
 
+        /// <summary>
+        /// After a global shader (within RestepGlobals) has been bound
+        /// </summary>
+        /// <param name="gs">Global shader which has been bound</param>
         protected virtual void OnBindGlobalShader(Shader gs)
         {
             gs.SetUniformMat3("transform", Transformation.Transformation);
         }
+
+        public abstract void Dispose();
     }
 }

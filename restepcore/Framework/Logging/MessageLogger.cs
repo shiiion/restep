@@ -8,6 +8,15 @@ namespace restep.Framework.Logging
     /// </summary>
     internal class MessageLogger
     {
+        public static readonly string RENDER_LOG = "renderlog";
+
+        public static void InitializeRestepLogs()
+        {
+            //TODO: move .log files to InfoLog folder
+            //TODO: add more logs
+            OpenLog(RENDER_LOG, "restep_rendering.log", true, "To log information about the rendering status of restep");
+        }
+
         //the LogStream abstraction will exist for a purpose one day im sure
         private static Dictionary<string, LogStream> openedLogs = new Dictionary<string, LogStream>();
 
