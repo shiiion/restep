@@ -26,7 +26,10 @@ namespace restep
 
             receptor.Transformation.Translation = new Vector2(400, 100);
             arrow.Transformation.Translation = new Vector2(400, 400);
-            
+
+            receptor.Transformation.Rotation = -(float)Math.PI / 2;
+            arrow.Transformation.Rotation = -(float)Math.PI / 2;
+
             //depth ordering, first = top
             //TODO: use Depth property to order meshes
             RestepRenderer.Instance.RenderedObjects.Add(arrow);
@@ -42,7 +45,6 @@ namespace restep
             t.Elapsed += (o, e) =>
             {
                 arrow.Transformation.Translation = new Vector2(arrow.Transformation.Translation.X, arrow.Transformation.Translation.Y - 2);
-
                 if(arrow.Transformation.Translation.Y < 0)
                 {
                     Console.WriteLine("awful! stop playing please!");
