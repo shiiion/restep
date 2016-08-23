@@ -9,9 +9,7 @@
     <Import_RootNamespace>restep</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)Framework\Exceptions\InvalidShaderException.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Framework\Exceptions\ShaderCompileException.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Framework\Exceptions\UniformNotFoundException.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Framework\Exceptions\LoggedException.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Framework\Logging\LogStream.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Framework\Logging\MessageLogger.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Framework\RestepGlobals.cs" />
@@ -20,7 +18,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\Renderables\Texture.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\Renderables\TexturedQuad.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\Renderables\Transform.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Graphics\RestepRenderer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\RestepWindow.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Graphics\Shader.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Graphics\Shaders\Shader.cs" />
   </ItemGroup>
 </Project>

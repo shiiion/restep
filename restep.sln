@@ -9,7 +9,7 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "restepcore", "restepcore\re
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Design Files", "Design Files", "{56C76F45-6BBB-45D7-AEF8-ACC1157CCA5D}"
 	ProjectSection(SolutionItems) = preProject
-		Base Graphics Design.txt = Base Graphics Design.txt
+		[see file end]Graphics Design.txt = [see file end]Graphics Design.txt
 		todo.txt = todo.txt
 	EndProjectSection
 EndProject

@@ -1,8 +1,9 @@
-﻿using System;
-using OpenTK;
+﻿using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using restep.Framework.Logging;
+using restep.Framework.Exceptions;
+using restep.Graphics.Shaders;
 
 namespace restep.Graphics
 {
@@ -12,41 +13,24 @@ namespace restep.Graphics
     /// </summary>
     internal class RestepWindow : GameWindow
     {
-        public static bool IsInitialized
-        {
-            get;
-            private set;
-        } = false;
+        #region ~singleton data~
+        public static bool Initialized { get; private set; } = false;
 
         private static RestepWindow instance;
         /// <summary>
         /// Singleton instance of this class
-        /// Initialize must be called before trying to access this
+        /// <para>Initialize must be called before trying to access this</para>
         /// </summary>
         public static RestepWindow Instance
         {
             get
             {
-                if(IsInitialized)
+                if(Initialized)
                 {
                     return instance;
                 }
-                //TODO: log me
-                throw new Exception("Restep window has not been initialized yet!");
+                throw new LoggedException("Failed to get instance as window has not been initialized yet!", MessageLogger.RENDER_LOG, "RestepWindow");
             }
-        }
-
-
-        private RestepWindow(int width, int height, string title, GraphicsContextFlags gcf)
-            : base(width, height, new GraphicsMode(new ColorFormat(8, 8, 8, 8), 16), title, 0, DisplayDevice.Default, 3, 1, GraphicsContextFlags.Default)
-        {
-            string version = GL.GetString(StringName.Version);
-            //TODO: log me
-            if(!version.StartsWith("3.1"))
-            {
-                throw new Exception("Was not able to get requested GL version!");
-            }
-            LoadBaseShader();
         }
 
         /// <summary>
@@ -59,12 +43,25 @@ namespace restep.Graphics
         public static void Initialize(int width, int height, string title, GraphicsContextFlags gcf = GraphicsContextFlags.Default)
         {
             instance = new RestepWindow(width, height, title, gcf);
-            IsInitialized = true;
+            Initialized = true;
+        }
+        #endregion
+
+        private RestepWindow(int width, int height, string title, GraphicsContextFlags gcf)
+            : base(width, height, new GraphicsMode(new ColorFormat(8, 8, 8, 8), 16), title, 0, DisplayDevice.Default, 3, 1, GraphicsContextFlags.Default)
+        {
+            string version = GL.GetString(StringName.Version);
+            if(!version.StartsWith("3.1"))
+            {
+                throw new LoggedException("Was not able to get requested GL version!", MessageLogger.RENDER_LOG, "RestepWindow");
+            }
+            Framework.RestepGlobals.ContentAreaSize = new Vector2(width, height);
+            LoadBaseShader();
         }
 
         #region ~base shader code~
         //cut down on CPU mat calculations by making mat3
-        private const string BASE_SHADER_VTX =
+        private const string TEX_SHADER_VTX =
             @"#version 330
               precision highp float;
               layout (location = 0) in vec2 position;
@@ -73,59 +70,52 @@ namespace restep.Graphics
               out vec2 tcoord0;
 
               uniform mat3 transform;
+              uniform vec2 origin;
+              uniform float depth;
               
               void main()
               {
                   tcoord0 = texCoord;
-                  vec3 posResult = transform * vec3(position, 1.0);
-                  gl_Position = vec4(posResult.xy, 0.0, 1.0);
+                  vec3 positionTransform = transform * vec3((position - origin), 1.0);
+                  gl_Position = vec4(positionTransform.xy, 0.0, 1.0);
               }";
 
 
-        private const string BASE_SHADER_FRAG =
+        private const string TEX_SHADER_FRAG =
             @"#version 330
               precision highp float;
               out vec4 fragColor;
 
               uniform sampler2D diffuse;
-              uniform int useTexture;
-              uniform vec4 uColor;
               
               in vec2 tcoord0;
 
               void main()
               {
-                  if(useTexture != 0)
-                  {
-                      fragColor = texture2D(diffuse, tcoord0);
-                  }
-                  else
-                  {
-                      fragColor = uColor;
-                  }
+                  fragColor = texture2D(diffuse, tcoord0);
               }";
 
         private void LoadBaseShader()
         {
             try
             {
-                Shader baseShader = new Shader("baseShader");
+                Shader textureShader = new Shader("textureShader");
+                //Shader colorShader = new Shader("colorShader");
 
                 //SURROUND ME WITH TRYCATCH LATER
-                baseShader.LoadShader(BASE_SHADER_VTX, BASE_SHADER_FRAG);
+                textureShader.LoadShader(TEX_SHADER_VTX, TEX_SHADER_FRAG);
 
-                baseShader.AddUniform("transform");
-                baseShader.AddUniform("useTexture");
-                baseShader.AddUniform("uColor");
+                textureShader.AddUniform("transform");
+                textureShader.AddUniform("origin");
 
-                baseShader.Enabled = true;
+                textureShader.Enabled = true;
 
-                Framework.RestepGlobals.LoadedShaders.Add(baseShader);
-                MessageLogger.LogMessage("restepwinlog", "ShaderStatus", MessageType.Success, "Loaded, compiled, and linked base shader successfully. All uniforms found.", true);
+                Framework.RestepGlobals.LoadedShaders.Add(textureShader);
+                MessageLogger.LogMessage(MessageLogger.RENDER_LOG, "ShaderStatus", MessageType.Success, "Loaded, compiled, and linked texture shader successfully. All uniforms found.", true);
             }
-            catch(Exception e)
+            catch
             {
-                MessageLogger.LogMessage("restepwinlog", "ShaderStatus", MessageType.Error, e.Message, true);
+                //TODO: handle me (popup?)
             }
         }
 
@@ -137,7 +127,11 @@ namespace restep.Graphics
         /// <param name="e"></param>
         protected override void OnRenderFrame(FrameEventArgs e)
         {
-            
+            RestepRenderer.Instance.OnRender();
+            SwapBuffers();
+
+            //System.Console.WriteLine(e.Time); // Get framerate for performance logging
+
             base.OnRenderFrame(e);
         }
     }

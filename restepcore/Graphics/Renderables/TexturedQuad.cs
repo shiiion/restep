@@ -1,6 +1,8 @@
 ﻿using System;
 using OpenTK.Graphics.OpenGL;
 using restep.Graphics.Intermediate;
+using restep.Graphics.Shaders;
+using restep.Framework.Logging;
 
 namespace restep.Graphics.Renderables
 {
@@ -29,28 +31,44 @@ namespace restep.Graphics.Renderables
                 new BufferData(0, 1, 0, 1), new BufferData(1, 1, 1, 1)
             };
 
-            private static readonly int[] quadIndices =
-                { 0, 1, 2, 3, 1, 2 };
-            
-            public static uint[] VBO { get; private set; }
+            private static readonly ushort[] quadIndices =
+                { 0, 1, 2, 1, 3, 2 };
+
+            public static uint VAO { get; private set; }
+
+            public static uint[] VBO { get; private set; } = new uint[2];
 
             public static bool Initialized { get; private set; } = false;
 
             public static void Init()
             {
-                GL.GenBuffers(BUFFER_COUNT, VBO);
-                
-                GL.BindBuffer(BufferTarget.ArrayBuffer, VBO[0]);
-                GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(16), quadVertices, BufferUsageHint.StaticDraw);
+                uint vao;
+                GL.GenVertexArrays(1, out vao);
+                VAO = vao;
+                GL.BindVertexArray(VAO);
 
+                GL.GenBuffers(BUFFER_COUNT, VBO);
+
+                float[] bufferArray = BufferData.MergeArrays(quadVertices);
+
+                GL.BindBuffer(BufferTarget.ArrayBuffer, VBO[0]);
+                GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(bufferArray.Length * sizeof(float)), bufferArray, BufferUsageHint.StaticDraw);
+                
                 GL.BindBuffer(BufferTarget.ElementArrayBuffer, VBO[1]);
-                GL.BufferData(BufferTarget.ElementArrayBuffer, (IntPtr)(24), quadIndices, BufferUsageHint.StaticDraw);
+                GL.BufferData(BufferTarget.ElementArrayBuffer, (IntPtr)(quadIndices.Length * sizeof(ushort)), quadIndices, BufferUsageHint.StaticDraw);
             }
         }
 
         public TexturedQuad(string texPath = "")
         {
             QuadTexture = new Texture(texPath);
+            InitMeshVertices();
+        }
+
+        public TexturedQuad(System.Drawing.Bitmap bitmap)
+        {
+            QuadTexture = new Texture(bitmap);
+            InitMeshVertices();
         }
 
         public override void InitMeshVertices()
@@ -61,15 +79,15 @@ namespace restep.Graphics.Renderables
             }
 
             indexCount = 6;
-
+            
             VBO = TexturedQuad_Internal.VBO;
 
             Loaded = true;
         }
-
-        //TODO: implementme
+        
         public override void InitMeshVertices(VertexData data)
         {
+            MessageLogger.LogMessage(MessageLogger.RENDER_LOG, "TexturedQuad", MessageType.Warning, "Attempted to load from VertexData for a TexturedQuad, load refused.", true);
         }
 
         protected override void RenderMesh_Internal()
@@ -78,14 +96,9 @@ namespace restep.Graphics.Renderables
             base.RenderMesh_Internal();
         }
 
-        protected override void RenderWithMeshShaders()
-        {
+        protected override void RenderWithMeshShaders() { }
 
-        }
-
-        public override void PreRender()
-        {
-        }
+        public override void PreRender() { }
 
         protected override void OnBindGlobalShader(Shader gs)
         {

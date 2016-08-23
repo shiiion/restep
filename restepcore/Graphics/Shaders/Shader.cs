@@ -1,15 +1,19 @@
-﻿using System.Collections.Generic;
-using OpenTK.Graphics.OpenGL;
+﻿using System;
 using System.IO;
-using System;
+using System.Collections.Generic;
+using OpenTK;
+using OpenTK.Graphics.OpenGL;
+using restep.Framework.Logging;
+using restep.Framework.Exceptions;
 
-namespace restep.Graphics
+namespace restep.Graphics.Shaders
 {
     /// <summary>
     /// Represents a compiled GLSL shader program
     /// </summary>
     internal class Shader : IDisposable
     {
+
         /// <summary>
         /// Public name of the shader for meshes to refer to them by
         /// Also used for exception messages
@@ -82,8 +86,16 @@ namespace restep.Graphics
                 linkShaders();
                 Loaded = true;
             }
+            catch (LoggedException e)
+            {
+                destroyExistingShaders();
+                destroyShaderProgram();
+                Loaded = false;
+                throw e;
+            }
             catch (Exception e)
             {
+                MessageLogger.LogMessage(MessageLogger.RENDER_LOG, "Shader", MessageType.Error, e.Message, true);
                 destroyExistingShaders();
                 destroyShaderProgram();
                 Loaded = false;
@@ -108,8 +120,16 @@ namespace restep.Graphics
                 linkShaders();
                 Loaded = true;
             }
+            catch (LoggedException e)
+            {
+                destroyExistingShaders();
+                destroyShaderProgram();
+                Loaded = false;
+                throw e;
+            }
             catch (Exception e)
             {
+                MessageLogger.LogMessage(MessageLogger.RENDER_LOG, "Shader", MessageType.Error, e.Message, true);
                 destroyExistingShaders();
                 destroyShaderProgram();
                 Loaded = false;
@@ -152,11 +172,11 @@ namespace restep.Graphics
             
             if (VSHandle == 0)
             {
-                throw new Exception("Failed to create vertex shader for shader named " + Name + "! GL Error code: " + GL.GetError());
+                throw new LoggedException($"Failed to create vertex shader for shader named {Name}! GL Error code: {GL.GetError()}", MessageLogger.RENDER_LOG, "Shader");
             }
             if (FSHandle == 0)
             {
-                throw new Exception("Failed to create fragment shader for shader named " + Name + "! GL Error code: " + GL.GetError());
+                throw new LoggedException($"Failed to create fragment shader for shader named {Name}! GL Error code: {GL.GetError()}", MessageLogger.RENDER_LOG, "Shader");
             }
         }
 
@@ -176,7 +196,7 @@ namespace restep.Graphics
             {
                 string error;
                 GL.GetShaderInfoLog(shader, out error);
-                throw new Framework.Exceptions.ShaderCompileException("Shader named " + Name + " failed to compile. Error message: " + error);
+                throw new LoggedException($"Shader named {Name} failed to compile. Error message: {error}", MessageLogger.RENDER_LOG, "Shader");
             }
         }
 
@@ -190,7 +210,7 @@ namespace restep.Graphics
 
             if(progHandle == 0)
             {
-                throw new Exception("Failed to create shader program for shader named " + Name + "! GL Error code: " + GL.GetError());
+                throw new LoggedException($"Failed to create shader program for shader named {Name}! GL Error code: {GL.GetError()}", MessageLogger.RENDER_LOG, "Shader");
             }
             
             //attach shaders to our program for linking
@@ -220,17 +240,19 @@ namespace restep.Graphics
         #endregion
 
         #region ~uniform mapping~
-        
+
         /// <summary>
         /// Search compiled shader for a uniform 
         /// <para>Throws Exception on failure</para>
         /// </summary>
         /// <param name="uniformName">The name of the uniform to search</param>
+        /// <param name="type">The type of the uniform being mapped</param>
+        /// <param name="container">The type of class which contains the uniform to be mapped</param>
         public void AddUniform(string uniformName)
         {
             if(!Loaded)
             {
-                throw new Framework.Exceptions.InvalidShaderException("Shader program has not been created or has failed to create for shader named " + Name + "!");
+                throw new LoggedException($"Shader program has not been created or has failed to create for shader named {Name}!", MessageLogger.RENDER_LOG, "Shader");
             }
 
             //find the uniform in our program
@@ -238,7 +260,7 @@ namespace restep.Graphics
 
             if (uniformLocation == -1)
             {
-                throw new Framework.Exceptions.UniformNotFoundException("Failed to find uniform named " + uniformName + " for shader named " + Name + "! GL Error code: " + GL.GetError());
+                throw new LoggedException($"Failed to find uniform named {uniformName} for shader named {Name}! GL Error code: {GL.GetError()}", MessageLogger.RENDER_LOG, "Shader");
             }
 
             //map the uniform's name to its location
@@ -250,7 +272,7 @@ namespace restep.Graphics
         /// </summary>
         /// <param name="uniformName">Name of the mat3</param>
         /// <param name="matRef">Matrix3 to copy from</param>
-        public void SetUniformMat3(string uniformName, OpenTK.Matrix3 matRef)
+        public void SetUniformMat3(string uniformName, Matrix3 matRef)
         {
             int location;
 
@@ -361,11 +383,6 @@ namespace restep.Graphics
             destroyExistingShaders();
             destroyShaderProgram();
             Loaded = false;
-        }
-
-        ~Shader()
-        {
-            Dispose();
         }
     }
 }

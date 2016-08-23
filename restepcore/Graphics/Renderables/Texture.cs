@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.Text;
-using OpenTK;
-using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
+using restep.Framework.Exceptions;
+using restep.Framework.Logging;
 
 namespace restep.Graphics.Renderables
 {
@@ -37,6 +36,14 @@ namespace restep.Graphics.Renderables
             }
         }
 
+        public Texture(Bitmap bmp)
+        {
+            Loaded = false;
+            textureHandle = 0;
+
+            LoadTexture(bmp);
+        }
+
         private void destroyTexture()
         {
             if(textureHandle != 0)
@@ -54,7 +61,7 @@ namespace restep.Graphics.Renderables
 
             if(textureHandle <= 0)
             {
-                throw new Exception("Failed to create texture handle! GL Error code: " + GL.GetError());
+                throw new LoggedException($"Failed to create texture handle! GL Error code: {GL.GetError()}", MessageLogger.RENDER_LOG, "Texture");
             }
         }
 
@@ -64,6 +71,46 @@ namespace restep.Graphics.Renderables
 
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+        }
+
+        /// <summary>
+        /// Attempts to load the texture directly from a bitmap
+        /// <para>Throws Exception on failure</para>
+        /// </summary>
+        /// <param name="image"></param>
+        public void LoadTexture(Bitmap image)
+        {
+            try
+            {
+                genTexture();
+                setTextureProperties();
+                BitmapData bmpData = image.LockBits(new Rectangle(0, 0, image.Width, image.Height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+
+                GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, bmpData.Width, bmpData.Height, 0, OpenTK.Graphics.OpenGL.PixelFormat.Bgra, PixelType.UnsignedByte, bmpData.Scan0);
+
+                image.UnlockBits(bmpData);
+
+                TexturePath = "@Resource";
+
+                Loaded = true;
+            }
+            catch (LoggedException e)
+            {
+                destroyTexture();
+                Loaded = false;
+                throw e;
+            }
+            catch (Exception e)
+            {
+                MessageLogger.LogMessage(MessageLogger.RENDER_LOG, "Texture", MessageType.Error, e.Message, true);
+                destroyTexture();
+                Loaded = false;
+                throw e;
+            }
+            finally
+            {
+                GL.BindTexture(TextureTarget.Texture2D, 0);
+            }
         }
 
         /// <summary>
@@ -77,25 +124,10 @@ namespace restep.Graphics.Renderables
             try
             {
                 bmp = new Bitmap(path);
-                genTexture();
-                setTextureProperties();
-                BitmapData bmpData = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-
-                GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, bmpData.Width, bmpData.Height, 0, OpenTK.Graphics.OpenGL.PixelFormat.Bgra, PixelType.UnsignedByte, bmpData.Scan0);
-
-                bmp.UnlockBits(bmpData);
-
-                TexturePath = path;
-            }
-            catch (Exception e)
-            {
-                destroyTexture();
-                Loaded = false;
-                throw e;
+                LoadTexture(bmp);
             }
             finally
             {
-                GL.BindTexture(TextureTarget.Texture2D, 0);
                 if (bmp != null)
                 {
                     bmp.Dispose();
@@ -126,11 +158,6 @@ namespace restep.Graphics.Renderables
         public void Dispose()
         {
             destroyTexture();
-        }
-
-        ~Texture()
-        {
-            Dispose();
         }
     }
 }

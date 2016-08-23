@@ -1,7 +1,7 @@
 ﻿using System;
-using restep.Graphics.Intermediate;
 using OpenTK.Graphics.OpenGL;
-using System.Runtime.InteropServices;
+using restep.Graphics.Shaders;
+using restep.Graphics.Intermediate;
 using restep.Framework.Logging;
 
 namespace restep.Graphics.Renderables
@@ -9,6 +9,8 @@ namespace restep.Graphics.Renderables
     internal abstract class FlatMesh : IDisposable
     {
         public static readonly int BUFFER_COUNT = 2;
+
+        public float Depth { get; set; }
 
         /// <summary>
         /// Tells whether or not the mesh has successfully loaded all of its data
@@ -18,32 +20,41 @@ namespace restep.Graphics.Renderables
         /// <summary>
         /// If false, the mesh will ignore the first shader in LoadedShaders
         /// </summary>
-        public bool UsingBaseShader { get; set; }
+        public bool UsingBaseShader { get; set; } = true;
 
         /// <summary>
         /// Transformation data of the mesh
         /// </summary>
         public Transform Transformation { get; set; }
-        
+
+        protected uint[] IBO;
         protected uint[] VBO;
         protected int indexCount;
 
         /// <summary>
         /// Vertex structure used by ALL shaders for restep
         /// </summary>
-        [StructLayout(LayoutKind.Sequential)]
         public struct BufferData
         {
             public BufferData(float x, float y, float u, float v)
             {
-                this.x = x;
-                this.y = y;
-                this.u = u;
-                this.v = v;
+                Data = new float[]{ x, y, u, v };
             }
 
-            public float x, y;
-            public float u, v;
+            public float[] Data;
+
+            public static float[] MergeArrays(BufferData[] buffers)
+            {
+                float[] ret = new float[buffers[0].Data.Length * buffers.Length];
+                for(int a=0;a<buffers.Length;a++)
+                {
+                    for(int b=0;b<buffers[a].Data.Length;b++)
+                    {
+                        ret[(buffers[a].Data.Length * a) + b] = buffers[a].Data[b];
+                    }
+                }
+                return ret;
+            }
         };
 
         public FlatMesh()
@@ -105,16 +116,13 @@ namespace restep.Graphics.Renderables
         /// </summary>
         protected virtual void RenderMesh_Internal()
         {
+            GL.VertexAttribPointer(0, 2, VertexAttribPointerType.Float, false, 4 * sizeof(float), 0);
             GL.EnableVertexAttribArray(0);
+
+            GL.VertexAttribPointer(1, 2, VertexAttribPointerType.Float, false, 4 * sizeof(float), 2 * sizeof(float));
             GL.EnableVertexAttribArray(1);
 
-            GL.BindBuffer(BufferTarget.ArrayBuffer, VBO[0]);
-
-            GL.VertexAttribPointer(0, 2, VertexAttribPointerType.Float, false, 16, 0);
-            GL.VertexAttribPointer(1, 2, VertexAttribPointerType.Float, false, 16, 8);
-
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, VBO[1]);
-            GL.DrawElements(BeginMode.Triangles, indexCount, DrawElementsType.UnsignedInt, 0);
+            GL.DrawElements(BeginMode.Triangles, indexCount, DrawElementsType.UnsignedShort, 0);
 
             GL.DisableVertexAttribArray(0);
             GL.DisableVertexAttribArray(1);
@@ -138,6 +146,7 @@ namespace restep.Graphics.Renderables
         protected virtual void OnBindGlobalShader(Shader gs)
         {
             gs.SetUniformMat3("transform", Transformation.Transformation);
+            gs.SetUniformVec2("origin", Transformation.Origin.X, Transformation.Origin.Y);
         }
 
         public abstract void Dispose();

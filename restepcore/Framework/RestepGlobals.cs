@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using restep.Graphics;
+﻿using System.Collections.Generic;
 using OpenTK;
+using restep.Graphics;
+using restep.Graphics.Shaders;
 
 namespace restep.Framework
 {
@@ -31,7 +30,7 @@ namespace restep.Framework
             set
             {
                 contentAreaSize = value;
-                if(RestepWindow.IsInitialized)
+                if(RestepWindow.Initialized)
                 {
                     RestepWindow.Instance.ClientSize = new System.Drawing.Size((int)contentAreaSize.X, (int)contentAreaSize.Y);
                 }

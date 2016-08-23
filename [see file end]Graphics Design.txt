@@ -196,3 +196,5 @@ class TexturedQuad : FlatMesh
 		--
 		protected override void OnBindGlobalShader(Shader gs)
 		--
+
+~~~~~~~~from here on out (commit #11), rendering will be written organically. This design will NOT be updated anymore~~~~~~~~

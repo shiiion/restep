@@ -51,6 +51,12 @@ namespace restep.Graphics.Renderables
             }
         }
 
+
+        /// <summary>
+        /// The point within a mesh which the transform will rotate about
+        /// </summary>
+        public Vector2 Origin { get; set; }
+
         private Matrix3 smat;
         private Vector2 scale;
         /// <summary>
@@ -116,7 +122,7 @@ namespace restep.Graphics.Renderables
         {
             Translation = Vector2.Zero;
             Rotation = 0;
-            Scale = Vector2.Zero;
+            Scale = Vector2.One;
             ScreenSpace = screenSpace;
         }
 
@@ -124,6 +130,7 @@ namespace restep.Graphics.Renderables
         {
             //transform order: screenspace * (translation * (rotation * scale))
             cachedTransform = Matrix3.Mult(scrmat, Matrix3.Mult(tmat, Matrix3.Mult(rmat, smat)));
+            cachedTransform.Transpose();
             refreshResult = false;
         }
 
