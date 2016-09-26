@@ -51,12 +51,6 @@ namespace restep.Graphics.Renderables
             }
         }
 
-
-        /// <summary>
-        /// The point within a mesh which the transform will rotate about
-        /// </summary>
-        public Vector2 Origin { get; set; }
-
         private Matrix3 smat;
         private Vector2 scale;
         /// <summary>

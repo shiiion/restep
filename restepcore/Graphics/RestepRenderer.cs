@@ -46,7 +46,7 @@ namespace restep.Graphics
             Initialized = true;
 
             GL.ClearColor(0, 0, 0, 0);
-            GL.FrontFace(FrontFaceDirection.Cw);
+            //GL.FrontFace(FrontFaceDirection.Cw);
             GL.Enable(EnableCap.DepthTest);
 
             GL.Enable(EnableCap.Texture2D);

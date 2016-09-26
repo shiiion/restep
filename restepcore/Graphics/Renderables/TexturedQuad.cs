@@ -1,24 +1,69 @@
 ﻿using System;
+using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using restep.Graphics.Intermediate;
 using restep.Graphics.Shaders;
+using restep.Framework;
 using restep.Framework.Logging;
 
 namespace restep.Graphics.Renderables
 {
     //TODO optimization: texture store to save GL memory
     //TODO optimization: texture reference counter
+    //TODO optimization: texture atlasing
 
     /// <summary>
     /// Class representing vertices and texture for a textured quad
     /// </summary>
     internal class TexturedQuad : FlatMesh
     {
+        private static Shader textureShader = null;
+
+        /// <summary>
+        /// This should be auto-called by RestepWindow 
+        /// </summary>
+        public static void InitClass()
+        {
+            if(textureShader == null)
+            {
+                textureShader = new Shader("textureShader");
+                textureShader.LoadShader(RestepGlobals.TEX_SHADER_VTX, RestepGlobals.TEX_SHADER_FRAG);
+
+                textureShader.AddUniform("transform");
+                textureShader.AddUniform("origin");
+
+                textureShader.Enabled = true;
+
+                MessageLogger.LogMessage(MessageLogger.RENDER_LOG, "TexturedQuad", MessageType.Success, "Loaded, compiled, and linked texture shader successfully. All uniforms found.", true);
+            }
+            else
+            {
+                MessageLogger.LogMessage(MessageLogger.RENDER_LOG, "TexturedQuad", MessageType.Warning, "Attempted to re-intialize TexturedQuad shader! Make sure no extra calls are made to TexturedQuad.InitClass.", true);
+            }
+        }
+        
         /// <summary>
         /// Handle to the texture used by this mesh
         /// </summary>
         public Texture QuadTexture { get; set; }
         
+        private class QuadBufferData : BufferData
+        {
+            public QuadBufferData(float x, float y, float u, float v)
+            {
+                Data = new float[4] { x, y, u, v };
+            }
+        }
+
+        private class QuadFormat : DataFormat
+        {
+            protected override void InitFormat()
+            {
+                bufferOrder.Add(LayoutQualifierType.Vec2);
+                bufferOrder.Add(LayoutQualifierType.Vec2);
+            }
+        }
+
         /// <summary>
         /// Class defining vertex data used by all textured quads
         /// <para>Data here will be reused for all textured quads, but will be transformed and textured differently for each TexturedQuad</para>
@@ -27,35 +72,42 @@ namespace restep.Graphics.Renderables
         {
             private static readonly BufferData[] quadVertices =
             {
-                new BufferData(0, 0, 0, 0), new BufferData(1, 0, 1, 0),
-                new BufferData(0, 1, 0, 1), new BufferData(1, 1, 1, 1)
+                new QuadBufferData(0, 0, 0, 0), new QuadBufferData(1, 0, 1, 0), new QuadBufferData(0, 1, 0, 1),
+                new QuadBufferData(1, 1, 1, 1), new QuadBufferData(1, 0, 1, 0), new QuadBufferData(0, 1, 0, 1)
             };
 
-            private static readonly ushort[] quadIndices =
-                { 0, 1, 2, 1, 3, 2 };
+            public static uint VertexArray { get; private set; }
 
-            public static uint VAO { get; private set; }
-
-            public static uint[] VBO { get; private set; } = new uint[2];
+            public static uint[] VertexBuffers { get; private set; } = new uint[2];
 
             public static bool Initialized { get; private set; } = false;
+
+            public static int[] Attribs { get; private set; }
 
             public static void Init()
             {
                 uint vao;
+                QuadFormat format = new QuadFormat();
+
                 GL.GenVertexArrays(1, out vao);
-                VAO = vao;
-                GL.BindVertexArray(VAO);
+                VertexArray = vao;
+                GL.BindVertexArray(VertexArray);
 
-                GL.GenBuffers(BUFFER_COUNT, VBO);
+                GL.GenBuffers(BUFFER_COUNT, VertexBuffers);
 
-                float[] bufferArray = BufferData.MergeArrays(quadVertices);
+                float[][] bufferData = BufferData.SeparateArrays(quadVertices, format);
 
-                GL.BindBuffer(BufferTarget.ArrayBuffer, VBO[0]);
-                GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(bufferArray.Length * sizeof(float)), bufferArray, BufferUsageHint.StaticDraw);
-                
-                GL.BindBuffer(BufferTarget.ElementArrayBuffer, VBO[1]);
-                GL.BufferData(BufferTarget.ElementArrayBuffer, (IntPtr)(quadIndices.Length * sizeof(ushort)), quadIndices, BufferUsageHint.StaticDraw);
+                GL.BindBuffer(BufferTarget.ArrayBuffer, VertexBuffers[0]);
+                GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(bufferData[0].Length * sizeof(float)), bufferData[0], BufferUsageHint.StaticDraw);
+
+                GL.BindBuffer(BufferTarget.ArrayBuffer, VertexBuffers[1]);
+                GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(bufferData[1].Length * sizeof(float)), bufferData[1], BufferUsageHint.StaticDraw);
+
+                Attribs = format.GetSizes();
+
+                Initialized = true;
+                 
+                GL.BindVertexArray(0);
             }
         }
 
@@ -78,9 +130,12 @@ namespace restep.Graphics.Renderables
                 TexturedQuad_Internal.Init();
             }
 
-            indexCount = 6;
-            
-            VBO = TexturedQuad_Internal.VBO;
+            vertexCount = 6;
+
+            vertexArray = TexturedQuad_Internal.VertexArray;
+            vertexBuffers = TexturedQuad_Internal.VertexBuffers;
+
+            attribSizes = TexturedQuad_Internal.Attribs;
 
             Loaded = true;
         }
@@ -92,22 +147,34 @@ namespace restep.Graphics.Renderables
 
         protected override void RenderMesh_Internal()
         {
+            //TODO: texture atlasing here (texture bindings hurt)
             QuadTexture.BindAsPrimaryTexture();
             base.RenderMesh_Internal();
         }
 
-        protected override void RenderWithMeshShaders() { }
+        protected override void RenderWithMeshShaders()
+        {
+            if(textureShader != null && textureShader.Loaded)
+            {
+                textureShader.UseShader();
+                textureShader.SetUniformMat3("transform", Transformation.Transformation);
+                textureShader.SetUniformVec2("origin", Origin.X, Origin.Y);
+
+                RenderMesh_Internal();
+            }
+            else
+            {
+                MessageLogger.LogMessage(MessageLogger.RENDER_LOG, "TexturedQuad", MessageType.Warning, "Attempted to render a TexturedQuad before the class has been initialized! Check to make sure that a successful call is made to texturedQuad.InitClass!", true);
+            }
+        }
 
         public override void PreRender() { }
 
-        protected override void OnBindGlobalShader(Shader gs)
-        {
-            base.OnBindGlobalShader(gs);
-        }
+        protected override void OnBindGlobalShader(Shader gs) { }
 
         public override void Dispose()
         {
-            //TODO: dispose texture
+            //TODO: decrement reference counter (on implementation)
         }
     }
 }

@@ -51,67 +51,22 @@ namespace restep.Graphics
             : base(width, height, new GraphicsMode(new ColorFormat(8, 8, 8, 8), 16), title, 0, DisplayDevice.Default, 3, 1, GraphicsContextFlags.Default)
         {
             string version = GL.GetString(StringName.Version);
+
             if(!version.StartsWith("3.1"))
             {
                 throw new LoggedException("Was not able to get requested GL version!", MessageLogger.RENDER_LOG, "RestepWindow");
             }
+
             Framework.RestepGlobals.ContentAreaSize = new Vector2(width, height);
-            LoadBaseShader();
+            LoadBaseShaders();
         }
 
-        #region ~base shader code~
-        //cut down on CPU mat calculations by making mat3
-        private const string TEX_SHADER_VTX =
-            @"#version 330
-              precision highp float;
-              layout (location = 0) in vec2 position;
-              layout (location = 1) in vec2 texCoord;
-              
-              out vec2 tcoord0;
-
-              uniform mat3 transform;
-              uniform vec2 origin;
-              uniform float depth;
-              
-              void main()
-              {
-                  tcoord0 = texCoord;
-                  vec3 positionTransform = transform * vec3((position - origin), 1.0);
-                  gl_Position = vec4(positionTransform.xy, 0.0, 1.0);
-              }";
-
-
-        private const string TEX_SHADER_FRAG =
-            @"#version 330
-              precision highp float;
-              out vec4 fragColor;
-
-              uniform sampler2D diffuse;
-              
-              in vec2 tcoord0;
-
-              void main()
-              {
-                  fragColor = texture2D(diffuse, tcoord0);
-              }";
-
-        private void LoadBaseShader()
+        private void LoadBaseShaders()
         {
             try
             {
-                Shader textureShader = new Shader("textureShader");
-                //Shader colorShader = new Shader("colorShader");
-
-                //SURROUND ME WITH TRYCATCH LATER
-                textureShader.LoadShader(TEX_SHADER_VTX, TEX_SHADER_FRAG);
-
-                textureShader.AddUniform("transform");
-                textureShader.AddUniform("origin");
-
-                textureShader.Enabled = true;
-
-                Framework.RestepGlobals.LoadedShaders.Add(textureShader);
-                MessageLogger.LogMessage(MessageLogger.RENDER_LOG, "ShaderStatus", MessageType.Success, "Loaded, compiled, and linked texture shader successfully. All uniforms found.", true);
+                Renderables.TexturedQuad.InitClass();
+                Renderables.ConvexPolygon.InitClass();
             }
             catch
             {
@@ -119,20 +74,18 @@ namespace restep.Graphics
             }
         }
 
-        #endregion
-
         /// <summary>
         /// Override of OpenTK function for rendering of frame
         /// </summary>
         /// <param name="e"></param>
         protected override void OnRenderFrame(FrameEventArgs e)
         {
-            RestepRenderer.Instance.OnRender();
-            SwapBuffers();
 
-            //System.Console.WriteLine(e.Time); // Get framerate for performance logging
+            System.Console.WriteLine(e.Time); // Get framerate for performance logging
 
             base.OnRenderFrame(e);
+            RestepRenderer.Instance.OnRender();
+            SwapBuffers();
         }
     }
 }

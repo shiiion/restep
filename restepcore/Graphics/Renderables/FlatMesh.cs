@@ -1,4 +1,5 @@
 ﻿using System;
+using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using restep.Graphics.Shaders;
 using restep.Graphics.Intermediate;
@@ -6,6 +7,7 @@ using restep.Framework.Logging;
 
 namespace restep.Graphics.Renderables
 {
+
     internal abstract class FlatMesh : IDisposable
     {
         public static readonly int BUFFER_COUNT = 2;
@@ -27,30 +29,42 @@ namespace restep.Graphics.Renderables
         /// </summary>
         public Transform Transformation { get; set; }
 
-        protected uint[] IBO;
-        protected uint[] VBO;
-        protected int indexCount;
+        /// <summary>
+        /// The point within a mesh which the transform will rotate about
+        /// </summary>
+        public Vector2 Origin { get; set; }
+
+        protected uint vertexArray;
+        protected uint[] vertexBuffers;
+        protected int vertexCount;
+        protected int[] attribSizes;
 
         /// <summary>
         /// Vertex structure used by ALL shaders for restep
         /// </summary>
-        public struct BufferData
+        public abstract class BufferData
         {
-            public BufferData(float x, float y, float u, float v)
-            {
-                Data = new float[]{ x, y, u, v };
-            }
-
             public float[] Data;
 
-            public static float[] MergeArrays(BufferData[] buffers)
+            //[buffer index][buffer data]
+
+            public static float[][] SeparateArrays(BufferData[] buffers, DataFormat format)
             {
-                float[] ret = new float[buffers[0].Data.Length * buffers.Length];
+                float[][] ret = new float[format.GetNumAttributes()][];
+                int[] attributeIndexCounter = new int[format.GetNumAttributes()];
+                for(int a=0;a<ret.Length;a++)
+                {
+                    ret[a] = new float[buffers.Length * format.GetAttributeSizeAt(a)];
+                    attributeIndexCounter[a] = 0;
+                }
+
                 for(int a=0;a<buffers.Length;a++)
                 {
                     for(int b=0;b<buffers[a].Data.Length;b++)
                     {
-                        ret[(buffers[a].Data.Length * a) + b] = buffers[a].Data[b];
+                        int attributeIndex = format.GetAttributeIndex(b);
+                        ret[attributeIndex][attributeIndexCounter[attributeIndex]] = buffers[a].Data[b];
+                        attributeIndexCounter[attributeIndex]++;
                     }
                 }
                 return ret;
@@ -86,25 +100,16 @@ namespace restep.Graphics.Renderables
                 MessageLogger.LogMessage(MessageLogger.RENDER_LOG, "FlatMesh", MessageType.Error, $"Failed to render mesh! Mesh has not been loaded. Classtype: {GetType().Name}", true);
                 return;
             }
-            //always garunteed 1 shader, else the program won't run this 
-            Shader baseShader = Framework.RestepGlobals.LoadedShaders[0];
-            if(baseShader.Loaded && baseShader.Enabled && UsingBaseShader)
-            {
-                baseShader.UseShader();
-                OnBindGlobalShader(baseShader);
-                RenderMesh_Internal();
-            }
 
             RenderWithMeshShaders();
-
-            for (int a = 1; a < Framework.RestepGlobals.LoadedShaders.Count; a++)
+            for (int a = 0; a < Framework.RestepGlobals.LoadedShaders.Count; a++)
             {
                 Shader s = Framework.RestepGlobals.LoadedShaders[a];
 
                 if(s.Loaded && s.Enabled)
                 {
                     s.UseShader();
-                    OnBindGlobalShader(baseShader);
+                    OnBindGlobalShader(s);
                     RenderMesh_Internal();
                 }
             }
@@ -116,16 +121,24 @@ namespace restep.Graphics.Renderables
         /// </summary>
         protected virtual void RenderMesh_Internal()
         {
-            GL.VertexAttribPointer(0, 2, VertexAttribPointerType.Float, false, 4 * sizeof(float), 0);
-            GL.EnableVertexAttribArray(0);
+            GL.BindVertexArray(vertexArray);
+            
+            for (int a = 0; a < attribSizes.Length; a++)
+            {
+                GL.EnableVertexAttribArray(a);
+                GL.BindBuffer(BufferTarget.ArrayBuffer, vertexBuffers[a]);
+                GL.VertexAttribPointer(a, attribSizes[a], VertexAttribPointerType.Float, false, 0, 0);
+            }
 
-            GL.VertexAttribPointer(1, 2, VertexAttribPointerType.Float, false, 4 * sizeof(float), 2 * sizeof(float));
-            GL.EnableVertexAttribArray(1);
+            GL.DrawArrays(PrimitiveType.Triangles, 0, vertexCount);
 
-            GL.DrawElements(BeginMode.Triangles, indexCount, DrawElementsType.UnsignedShort, 0);
+            for (int a = 0; a < attribSizes.Length; a++)
+            {
+                GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+                GL.DisableVertexAttribArray(a);
+            }
 
-            GL.DisableVertexAttribArray(0);
-            GL.DisableVertexAttribArray(1);
+            GL.BindVertexArray(0);
         }
 
         /// <summary>
@@ -145,8 +158,9 @@ namespace restep.Graphics.Renderables
         /// <param name="gs">Global shader which has been bound</param>
         protected virtual void OnBindGlobalShader(Shader gs)
         {
+            //ALL shaders for this game require "transform" and "origin" uniforms
             gs.SetUniformMat3("transform", Transformation.Transformation);
-            gs.SetUniformVec2("origin", Transformation.Origin.X, Transformation.Origin.Y);
+            gs.SetUniformVec2("origin", Origin.X, Origin.Y);
         }
 
         public abstract void Dispose();
