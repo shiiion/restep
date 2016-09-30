@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using restep.Framework.Exceptions;
 using restep.Framework.Logging;
 using restep.Graphics.Renderables;
+using restep.Framework.ResourceManagement;
 
 
 namespace restep.Graphics.Intermediate
@@ -103,7 +104,7 @@ namespace restep.Graphics.Intermediate
         }
     }
 
-    internal class VertexData
+    internal class VertexData : CountableResource
     {
         private class CustomBufferData : FlatMesh.BufferData
         {
@@ -222,6 +223,8 @@ namespace restep.Graphics.Intermediate
             bufferArray = vertices.ToArray();
             BuffersOut = FlatMesh.BufferData.SeparateArrays(bufferArray, BufferFormat);
         }
+
+        public override void OnDestroy() { }
 
         /// <summary>
         /// buffer format string (must be first line of data string)

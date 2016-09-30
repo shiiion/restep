@@ -117,7 +117,11 @@ namespace restep.Graphics.Renderables
         
         public override void Dispose()
         {
-            //TODO: dispose gl data
+            if(Loaded)
+            {
+                GL.DeleteBuffers(vertexBuffers.Length, vertexBuffers);
+                GL.DeleteVertexArray(vertexArray);
+            }
         }
     }
 }

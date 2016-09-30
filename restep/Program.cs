@@ -19,12 +19,15 @@ namespace restep
 
             //TODO: autoscale TexturedQuads to their texture dims
             ConvexPolygon cvp = new ConvexPolygon(new VertexData(new ConvexVertexFormat(),
-@"v_0_0_0
-v_1_0_0
-v_0_1_1
-v_1_1_1
-v_1_0_0
-v_0_1_1"));
+@"v_0.5_1_0
+v_0_0.5_0.5
+v_1_0.5_0.5
+v_0.45_0_1
+v_0.55_0_1
+v_0.55_0.5_0.5
+v_0.45_0_1
+v_0.54_0_1
+v_0.55_0.5_0.5"));
             TexturedQuad receptor = new TexturedQuad(TestResources.TestReceptor);
             TexturedQuad arrow = new TexturedQuad(TestResources.TestArrow);
 
@@ -41,8 +44,8 @@ v_0_1_1"));
 
             //depth ordering, first = top
             //TODO: use Depth property to order meshes
-            //RestepRenderer.Instance.RenderedObjects.Add(arrow);
-            //RestepRenderer.Instance.RenderedObjects.Add(receptor);
+            RestepRenderer.Instance.RenderedObjects.Add(arrow);
+            RestepRenderer.Instance.RenderedObjects.Add(receptor);
             RestepRenderer.Instance.RenderedObjects.Add(cvp);
 
             receptor.Origin = new Vector2(0.5f, 0.5f);

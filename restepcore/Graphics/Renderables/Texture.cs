@@ -4,23 +4,19 @@ using System.Drawing.Imaging;
 using OpenTK.Graphics.OpenGL;
 using restep.Framework.Exceptions;
 using restep.Framework.Logging;
+using restep.Framework.ResourceManagement;
 
 namespace restep.Graphics.Renderables
 {
     /// <summary>
     /// Represents a texture, both on disk and in GL
     /// </summary>
-    internal class Texture : IDisposable
+    internal class Texture : CountableResource, IDisposable
     {
         /// <summary>
         /// Path to the texture on disk
         /// </summary>
         public string TexturePath { get; private set; }
-
-        /// <summary>
-        /// Whether or not the texture has been loaded into GL memory
-        /// </summary>
-        public bool Loaded { get; private set; }
 
         private int textureHandle;
 
@@ -111,6 +107,7 @@ namespace restep.Graphics.Renderables
             {
                 GL.BindTexture(TextureTarget.Texture2D, 0);
             }
+            IdentifierHash = image.GetHashCode();
         }
 
         /// <summary>
@@ -133,6 +130,7 @@ namespace restep.Graphics.Renderables
                     bmp.Dispose();
                 }
             }
+            IdentifierHash = path.GetHashCode();
         }
 
         /// <summary>
@@ -153,6 +151,11 @@ namespace restep.Graphics.Renderables
         public void UnbindTexture()
         {
             GL.BindTexture(TextureTarget.Texture2D, 0);
+        }
+
+        public override void OnDestroy()
+        {
+            Dispose();
         }
 
         public void Dispose()

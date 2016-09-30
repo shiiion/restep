@@ -172,9 +172,6 @@ namespace restep.Graphics.Renderables
 
         protected override void OnBindGlobalShader(Shader gs) { }
 
-        public override void Dispose()
-        {
-            //TODO: decrement reference counter (on implementation)
-        }
+        public override void Dispose() { }
     }
 }

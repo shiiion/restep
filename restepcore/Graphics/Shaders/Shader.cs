@@ -5,13 +5,14 @@ using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using restep.Framework.Logging;
 using restep.Framework.Exceptions;
+using restep.Framework.ResourceManagement;
 
 namespace restep.Graphics.Shaders
 {
     /// <summary>
     /// Represents a compiled GLSL shader program
     /// </summary>
-    internal class Shader : IDisposable
+    internal class Shader : CountableResource, IDisposable
     {
 
         /// <summary>
@@ -33,16 +34,11 @@ namespace restep.Graphics.Shaders
         private Dictionary<string, int> uniformLocations;
         
         /// <summary>
-        /// Whether or not the shader has been compiled and is usable
-        /// </summary>
-        public bool Loaded { get; private set; }
-
-        /// <summary>
         /// Whether or not the shader is enabled for a renderer's use
         /// </summary>
         public bool Enabled { get; set; }
 
-        public Shader(string shaderName, string shaderPath = "")
+        public Shader(string shaderName, string shaderPath = "") : base(shaderName + shaderPath)
         {
             Name = shaderName;
             VSHandle = 0;
@@ -377,6 +373,11 @@ namespace restep.Graphics.Shaders
         }
 
         #endregion
+
+        public override void OnDestroy()
+        {
+            Dispose();
+        }
 
         public void Dispose()
         {
