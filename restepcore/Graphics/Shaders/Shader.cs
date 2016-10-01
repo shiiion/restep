@@ -38,7 +38,7 @@ namespace restep.Graphics.Shaders
         /// </summary>
         public bool Enabled { get; set; }
 
-        public Shader(string shaderName, string shaderPath = "") : base(shaderName + shaderPath)
+        public Shader(string shaderName, string shaderPath = "")
         {
             Name = shaderName;
             VSHandle = 0;
