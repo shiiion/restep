@@ -12,8 +12,9 @@ namespace restep.Graphics.Shaders
     /// <summary>
     /// Represents a compiled GLSL shader program
     /// </summary>
-    internal class Shader : CountableResource, IDisposable
+    internal class Shader : IDisposable
     {
+        public bool Loaded { get; private set; }
 
         /// <summary>
         /// Public name of the shader for meshes to refer to them by
@@ -373,11 +374,6 @@ namespace restep.Graphics.Shaders
         }
 
         #endregion
-
-        public override void OnDestroy()
-        {
-            Dispose();
-        }
 
         public void Dispose()
         {

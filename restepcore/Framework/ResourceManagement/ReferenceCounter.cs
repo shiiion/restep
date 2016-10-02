@@ -17,18 +17,19 @@ namespace restep.Framework.ResourceManagement
 
         public event HashChangedDelegate IdentifierHashChanged;
 
-        private int identifierHash;
         public int IdentifierHash
         {
-            get
-            {
-                return identifierHash;
-            }
+            get;
+            private set;
+        }
 
-            protected set
+        public string IdentifierHashString
+        {
+            set
             {
-                IdentifierHashChanged?.Invoke(identifierHash, value);
-                identifierHash = value;
+                int hashCode = value.GetHashCode();
+                IdentifierHashChanged?.Invoke(IdentifierHash, hashCode);
+                IdentifierHash = hashCode;
                 Hashed = true;
             }
         }
@@ -50,15 +51,15 @@ namespace restep.Framework.ResourceManagement
     /// </summary>
     internal class ReferenceCounter
     {
-        private static Dictionary<int, CountableResource> resources;
+        private static Dictionary<int, CountableResource> resources = new Dictionary<int, CountableResource>();
 
-        public static bool ReferenceExists(object identifier)
+        public static bool ReferenceExists(string identifier)
         {
             int IHC = identifier.GetHashCode();
             return resources.ContainsKey(IHC);
         }
 
-        public static ResType GetReference<ResType>(object identifier) where ResType : CountableResource
+        public static ResType GetReference<ResType>(string identifier) where ResType : CountableResource
         {
             int IHC = identifier.GetHashCode();
             CountableResource ret;

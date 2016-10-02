@@ -107,7 +107,7 @@ namespace restep.Graphics.Renderables
             {
                 GL.BindTexture(TextureTarget.Texture2D, 0);
             }
-            IdentifierHash = image.GetHashCode();
+            IdentifierHashString = image.;
         }
 
         /// <summary>
@@ -130,7 +130,7 @@ namespace restep.Graphics.Renderables
                     bmp.Dispose();
                 }
             }
-            IdentifierHash = path.GetHashCode();
+            IdentifierHashString = path;
         }
 
         /// <summary>

@@ -13,6 +13,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Framework\Logging\LogStream.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Framework\Logging\MessageLogger.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Framework\ResourceManagement\ReferenceCounter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Framework\ResourceManagement\ResourceHash.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Framework\ResourceManagement\ResourceServers.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Framework\RestepGlobals.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\Intermediate\VertexData.cs" />

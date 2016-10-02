@@ -28,7 +28,10 @@ v_0.55_0.5_0.5
 v_0.45_0_1
 v_0.54_0_1
 v_0.55_0.5_0.5"));
-            TexturedQuad receptor = new TexturedQuad(TestResources.TestReceptor);
+
+            Console.WriteLine(TestResources.TestArrow.ToString());
+            Console.WriteLine("aa".GetHashCode());
+            TexturedQuad receptor = new TexturedQuad(TestResources.TestArrow);
             TexturedQuad arrow = new TexturedQuad(TestResources.TestArrow);
 
             cvp.Transformation.Scale = new Vector2(64, 64);

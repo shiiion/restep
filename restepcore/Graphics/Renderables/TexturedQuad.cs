@@ -5,6 +5,7 @@ using restep.Graphics.Intermediate;
 using restep.Graphics.Shaders;
 using restep.Framework;
 using restep.Framework.Logging;
+using restep.Framework.ResourceManagement;
 
 namespace restep.Graphics.Renderables
 {
@@ -113,13 +114,13 @@ namespace restep.Graphics.Renderables
 
         public TexturedQuad(string texPath = "")
         {
-            QuadTexture = new Texture(texPath);
+            QuadTexture = TextureResourceServer.ServeTexture(texPath);
             InitMeshVertices();
         }
 
         public TexturedQuad(System.Drawing.Bitmap bitmap)
         {
-            QuadTexture = new Texture(bitmap);
+            QuadTexture = TextureResourceServer.ServeTexture(bitmap);
             InitMeshVertices();
         }
 
