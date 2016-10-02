@@ -57,19 +57,24 @@ namespace restep.Graphics
             GL.DepthFunc(DepthFunction.Always);
 
             GL.DepthRange(0, 0);
+
+            GL.Enable(EnableCap.Multisample);
         }
 
         #endregion
 
         public ConcurrentBag<FlatMesh> RenderedObjects { get; set; }
 
+        public float RenderingTimeSlice { get; private set; }
+
         private RestepRenderer()
         {
             RenderedObjects = new ConcurrentBag<FlatMesh>();
         }
 
-        public void OnRender()
+        public void OnRender(float deltaTime)
         {
+            RenderingTimeSlice = deltaTime;
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             GL.Enable(EnableCap.Blend);

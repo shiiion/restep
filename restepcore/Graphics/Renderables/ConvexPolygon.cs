@@ -24,6 +24,34 @@ namespace restep.Graphics.Renderables
         private static Shader colorShader = null;
 
         /// <summary>
+        /// The lower-end color this polygon will transition between
+        /// </summary>
+        public Vector4 ColorLow { get; set; }
+        /// <summary>
+        /// the upper-end color this polygon will transition between
+        /// </summary>
+        public Vector4 ColorHigh { get; set; }
+
+        /// <summary>
+        /// Sets the color of both ColorLow and ColorHigh to the same value;
+        /// </summary>
+        public Vector4 Color
+        {
+            set
+            {
+                ColorLow = value;
+                ColorHigh = value;
+            }
+        }
+
+        /// <summary>
+        /// The number of full graduations this polygon will go through in one second
+        /// </summary>
+        public float GradientRate { get; set; } = 1;
+
+        private float gradientAmount = 0;
+
+        /// <summary>
         /// This should be auto-called by RestepWindow 
         /// </summary>
         public static void InitClass()
@@ -93,8 +121,6 @@ namespace restep.Graphics.Renderables
         {
         }
 
-        float inc = 0; 
-
         protected override void RenderWithMeshShaders()
         {
             if (colorShader != null && colorShader.Loaded)
@@ -102,12 +128,12 @@ namespace restep.Graphics.Renderables
                 colorShader.UseShader();
                 colorShader.SetUniformMat3("transform", Transformation.Transformation);
                 colorShader.SetUniformVec2("origin", Origin.X, Origin.Y);
-                colorShader.SetUniformVec4("colorA", 1, 0, 0, 1);
-                colorShader.SetUniformVec4("colorB", 1, 1, 0, 1);
-                colorShader.SetUniformFloat("gradInc", inc);
+                colorShader.SetUniformVec4("colorA", ColorLow);
+                colorShader.SetUniformVec4("colorB", ColorHigh);
+                colorShader.SetUniformFloat("gradInc", gradientAmount);
 
                 RenderMesh_Internal();
-                inc += 0.005f;
+                gradientAmount += GradientRate * RestepRenderer.Instance.RenderingTimeSlice;
             }
             else
             {

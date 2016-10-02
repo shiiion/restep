@@ -333,6 +333,11 @@ namespace restep.Graphics.Shaders
             GL.Uniform2(location, x, y);
         }
 
+        public void SetUniformVec2(string uniformName, Vector2 vec)
+        {
+            SetUniformVec2(uniformName, vec.X, vec.Y);
+        }
+
         /// <summary>
         /// Sets a vec3 uniform
         /// </summary>
@@ -350,6 +355,11 @@ namespace restep.Graphics.Shaders
             }
 
             GL.Uniform3(location, x, y, z);
+        }
+
+        public void SetUniformVec3(string uniformName, Vector3 vec)
+        {
+            SetUniformVec3(uniformName, vec.X, vec.Y, vec.Z);
         }
 
 
@@ -371,6 +381,11 @@ namespace restep.Graphics.Shaders
             }
 
             GL.Uniform4(location, x, y, z, w);
+        }
+
+        public void SetUniformVec4(string uniformName, Vector4 vec)
+        {
+            SetUniformVec4(uniformName, vec.X, vec.Y, vec.Z, vec.W);
         }
 
         #endregion

@@ -173,6 +173,9 @@ namespace restep.Graphics.Renderables
 
         protected override void OnBindGlobalShader(Shader gs) { }
 
-        public override void Dispose() { }
+        public override void Dispose()
+        {
+            ReferenceCounter.ReleaseReference(QuadTexture);
+        }
     }
 }

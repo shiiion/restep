@@ -8,16 +8,27 @@ using System.Text;
 
 namespace restep.Framework.ResourceManagement
 {
+    public delegate byte[] HashGenerator<T>(T dataIn);
+
     internal struct ResourceHash
     {
-        private byte[] hashCode;
-
-        private ResourceHash()
+        internal class RHComparer : IEqualityComparer<ResourceHash>
         {
-            hashCode = null;
+            public bool Equals(ResourceHash x, ResourceHash y)
+            {
+                return x.HashEquals(y);
+            }
+
+            public int GetHashCode(ResourceHash obj)
+            {
+                //we want to use Equals function
+                return 0;
+            }
         }
 
-        private ResourceHash(byte[] hash)
+        private byte[] hashCode;
+        
+        public ResourceHash(byte[] hash)
         {
             hashCode = hash;
         }
@@ -34,7 +45,7 @@ namespace restep.Framework.ResourceManagement
             {
                 using (MemoryStream memStream = new MemoryStream())
                 {
-                    bmp.Save(memStream, ImageFormat.MemoryBmp);
+                    bmp.Save(memStream, ImageFormat.Bmp);
                     hashCode = checksum.ComputeHash(memStream);
                 }
             }

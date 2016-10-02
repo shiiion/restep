@@ -51,7 +51,6 @@ namespace restep.Graphics
             : base(width, height, new GraphicsMode(new ColorFormat(8, 8, 8, 8), 16), title, 0, DisplayDevice.Default, 3, 1, GraphicsContextFlags.Default)
         {
             string version = GL.GetString(StringName.Version);
-
             if(!version.StartsWith("3.1"))
             {
                 throw new LoggedException("Was not able to get requested GL version!", MessageLogger.RENDER_LOG, "RestepWindow");
@@ -84,7 +83,7 @@ namespace restep.Graphics
             System.Console.WriteLine(e.Time); // Get framerate for performance logging
 
             base.OnRenderFrame(e);
-            RestepRenderer.Instance.OnRender();
+            RestepRenderer.Instance.OnRender((float)e.Time);
             SwapBuffers();
         }
     }

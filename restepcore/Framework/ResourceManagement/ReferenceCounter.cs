@@ -6,7 +6,7 @@ using System.Text;
 
 namespace restep.Framework.ResourceManagement
 {
-    internal delegate void HashChangedDelegate(int oldHash, int newHash);
+    internal delegate void HashChangedDelegate(ResourceHash oldHash, ResourceHash newHash);
 
     /// <summary>
     /// Abstract definition for any resource that will have references to it managed by ReferenceCounter
@@ -17,22 +17,22 @@ namespace restep.Framework.ResourceManagement
 
         public event HashChangedDelegate IdentifierHashChanged;
 
-        public int IdentifierHash
+        private ResourceHash identifierHash;
+        public ResourceHash IdentifierHash
         {
-            get;
-            private set;
-        }
+            get
+            {
+                return identifierHash;
+            }
 
-        public string IdentifierHashString
-        {
             set
             {
-                int hashCode = value.GetHashCode();
-                IdentifierHashChanged?.Invoke(IdentifierHash, hashCode);
-                IdentifierHash = hashCode;
+                IdentifierHashChanged?.Invoke(IdentifierHash, value);
+                identifierHash = value;
                 Hashed = true;
             }
         }
+
         public bool Loaded { get; protected set; }
         public bool Hashed { get; private set; }
 
@@ -51,19 +51,18 @@ namespace restep.Framework.ResourceManagement
     /// </summary>
     internal class ReferenceCounter
     {
-        private static Dictionary<int, CountableResource> resources = new Dictionary<int, CountableResource>();
+        private static Dictionary<ResourceHash, CountableResource> resources 
+            = new Dictionary<ResourceHash, CountableResource>(new ResourceHash.RHComparer());
 
-        public static bool ReferenceExists(string identifier)
+        public static bool ReferenceExists(ResourceHash identifier)
         {
-            int IHC = identifier.GetHashCode();
-            return resources.ContainsKey(IHC);
+            return resources.ContainsKey(identifier);
         }
 
-        public static ResType GetReference<ResType>(string identifier) where ResType : CountableResource
+        public static ResType GetReference<ResType>(ResourceHash identifier) where ResType : CountableResource
         {
-            int IHC = identifier.GetHashCode();
             CountableResource ret;
-            if(resources.TryGetValue(IHC, out ret))
+            if(resources.TryGetValue(identifier, out ret))
             {
                 return (ResType)ret;
             }
@@ -91,7 +90,7 @@ namespace restep.Framework.ResourceManagement
             resources.Remove(reference.IdentifierHash);
         }
 
-        private static CountableResource removeReference(int hashCode)
+        private static CountableResource removeReference(ResourceHash hashCode)
         {
             CountableResource ret = null;
 
@@ -112,8 +111,8 @@ namespace restep.Framework.ResourceManagement
 
             if(reference.RefCount == 0)
             {
-                reference.OnDestroy();
                 removeReference(reference);
+                reference.OnDestroy();
             }
         }
     }
