@@ -83,7 +83,8 @@ namespace restep.Graphics
             System.Console.WriteLine(e.Time); // Get framerate for performance logging
 
             base.OnRenderFrame(e);
-            RestepRenderer.Instance.OnRender((float)e.Time);
+            RestepRenderer.Instance.Render((float)e.Time);
+            RestepRenderer.Instance.RenderPost((float)e.Time);
             SwapBuffers();
         }
     }

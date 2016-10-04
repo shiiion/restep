@@ -14,6 +14,13 @@ namespace restep.Graphics.Shaders
     /// </summary>
     internal class Shader : IDisposable
     {
+        public enum RenderGroup
+        {
+            Scene, Postprocess
+        }
+
+        public RenderGroup ShaderRenderGroup { get; set; } = RenderGroup.Scene;
+
         public bool Loaded { get; private set; }
 
         /// <summary>
@@ -257,7 +264,7 @@ namespace restep.Graphics.Shaders
 
             if (uniformLocation == -1)
             {
-                throw new LoggedException($"Failed to find uniform named {uniformName} for shader named {Name}! GL Error code: {GL.GetError()}", MessageLogger.RENDER_LOG, "Shader");
+                //throw new LoggedException($"Failed to find uniform named {uniformName} for shader named {Name}! GL Error code: {GL.GetError()}", MessageLogger.RENDER_LOG, "Shader");
             }
 
             //map the uniform's name to its location
