@@ -135,7 +135,7 @@ namespace restep.Graphics
             postBaseShader.AddUniform("FXAA_SPAN_MAX");
             postBaseShader.AddUniform("FXAA_REDUCE_MUL");
             postBaseShader.AddUniform("FXAA_REDUCE_MIN");
-            postBaseShader.AddUniform("frameBufSize3");
+            postBaseShader.AddUniform("frameBufferSize");
         }
 
         public void Render(float deltaTime)
@@ -162,7 +162,7 @@ namespace restep.Graphics
             postBaseShader.SetUniformFloat("FXAA_SPAN_MAX", 4);
             postBaseShader.SetUniformFloat("FXAA_REDUCE_MUL", 1.0f / 8.0f);
             postBaseShader.SetUniformFloat("FXAA_REDUCE_MIN", 1.0f / 128.0f);
-            postBaseShader.SetUniformVec3("frameBufSize3", RestepWindow.Instance.Width, RestepWindow.Instance.Height, 0);
+            postBaseShader.SetUniformVec3("frameBufferSize", RestepWindow.Instance.Width, RestepWindow.Instance.Height, 0);
 
             GL.BindVertexArray(fbTexVArray);
             GL.EnableVertexAttribArray(0);

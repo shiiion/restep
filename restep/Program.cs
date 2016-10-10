@@ -21,13 +21,7 @@ namespace restep
             ConvexPolygon cvp = new ConvexPolygon(new VertexData(new ConvexVertexFormat(),
 @"v_0.5_1_0
 v_0_0.5_0.5
-v_1_0.5_0.5
-v_0.45_0_1
-v_0.55_0_1
-v_0.55_0.5_0.5
-v_0.45_0_1
-v_0.54_0_1
-v_0.55_0.5_0.5"));
+v_1_0.5_1.0"));
             cvp.GradientRate = 0.1f;
             cvp.ColorLow = new Vector4(1, 1, 0, 1);
             cvp.ColorHigh = new Vector4(1, 0, 0, 1);

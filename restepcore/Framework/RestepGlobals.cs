@@ -36,7 +36,7 @@ namespace restep.Framework
 
             uniform sampler2D diffuse;
 
-            uniform vec3 frameBufSize3;
+            uniform vec3 frameBufferSize;
             uniform float FXAA_SPAN_MAX;
             uniform float FXAA_REDUCE_MUL;
             uniform float FXAA_REDUCE_MIN;
@@ -44,7 +44,7 @@ namespace restep.Framework
             void main( )
             {
 	            vec4 temp;
-	            vec2 frameBufSize = vec2( 1.0 / frameBufSize3.x, 1.0 / frameBufSize3.y );
+	            vec2 frameBufSize = vec2( 1.0 / frameBufferSize.x, 1.0 / frameBufferSize.y );
 
                 vec3 rgbNW = texture2D( diffuse, texCoord + ( vec2( -1.0, -1.0 ) * frameBufSize ) ).xyz;
                 vec3 rgbNE = texture2D( diffuse, texCoord + ( vec2( 1.0, -1.0 ) * frameBufSize ) ).xyz;
