@@ -20,8 +20,8 @@ namespace restep
 
             testTwo.Rotation = 0;
 
-            testOne.AddAABBCollider(new Vector2(25, 25));
-            testTwo.AddCircleCollider(25);
+            testOne.AddOBBCollider(new Vector2(25, 25));
+            testTwo.AddOBBCollider(new Vector2(25, 25));
 
             testOne.Position = new Vector2(50, 200);
             testTwo.Position = new Vector2(50, 200);
@@ -32,21 +32,28 @@ namespace restep
             RestepRenderer.Initialize();
 
             TexturedQuad mesh1 = new TexturedQuad("d:/jpeg/ff.png");
-            TexturedQuad mesh2 = new TexturedQuad("d:/jpeg/circle.png");
+            TexturedQuad mesh2 = new TexturedQuad("d:/jpeg/cut.jpg");
             
             mesh1.Depth = 0;
             mesh2.Depth = 1;
 
             RenderInterface.AddPair(mesh1, testOne);
             RenderInterface.AddPair(mesh2, testTwo);
-
             RestepWindow.Instance.UpdateFrame += (o, e) =>
             {
-                testOne.Position = testOne.Position + new Vector2(0.001f, 0.05f);
-                if (!testOne.TestCollision(testTwo))
+                int cx = System.Windows.Forms.Cursor.Position.X - RestepWindow.Instance.X;
+                int cy = RestepWindow.Instance.Y - System.Windows.Forms.Cursor.Position.Y + 800;
+                if (cx > 0 && cx < 800 && cy > 0 && cy < 800)
                 {
-                    Console.WriteLine(testOne.TestCollision(testTwo));
+                    testOne.Position = new Vector2(cx, cy);
                 }
+
+                testOne.Rotation += 0.002f;
+
+
+
+                Console.WriteLine(testOne.TestCollision(testTwo));
+                
             };
 
             RestepWindow.Instance.Run(60, 60);

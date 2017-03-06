@@ -20,12 +20,12 @@ namespace restep.Core.Collision
         /// Rotates a point about the center of this OBB clockwise
         /// </summary>
         /// <returns>Point rotated about the center of this OBB</returns>
-        private Vector2 getUnrotatedPointLocation(Vector2 point)
+        private Vector2 getRotatedPoint(Vector2 point, int direction)
         {
             Vector2 relLoc = point - Pos;
 
-            float cosf = (float)Math.Cos(-Rotation);
-            float sinf = (float)Math.Sin(-Rotation);
+            float cosf = (float)Math.Cos(-Rotation * direction);
+            float sinf = (float)Math.Sin(-Rotation * direction);
 
             Vector2 relRot = new Vector2(relLoc.X * cosf - relLoc.Y * sinf, relLoc.X * sinf + relLoc.Y * cosf);
 
@@ -51,25 +51,72 @@ namespace restep.Core.Collision
 
         private bool testOBB_AABB(AABBCollider other)
         {
+            {
+                Vector2 tl = getRotatedPoint(new Vector2(Pos.X - HalfBounds.X, Pos.Y + HalfBounds.Y), 1), tr = getRotatedPoint(Pos + HalfBounds, 1);
+                Vector2 bl = getRotatedPoint(Pos - HalfBounds, 1), br = getRotatedPoint(new Vector2(Pos.X + HalfBounds.X, Pos.Y - HalfBounds.Y), 1);
 
+                if (other.TestPoint(tl) || other.TestPoint(tr) || other.TestPoint(bl) || other.TestPoint(br))
+                {
+                    return true;
+                }
+            }
+
+            {
+                Vector2 tl = new Vector2(other.Pos.X - other.HalfBounds.X, other.Pos.Y + other.HalfBounds.Y), tr = other.Pos + other.HalfBounds;
+                Vector2 bl = other.Pos - other.HalfBounds, br = new Vector2(other.Pos.X + other.HalfBounds.X, other.Pos.Y - other.HalfBounds.Y);
+
+                if (TestPoint(tl) || TestPoint(tr) || TestPoint(bl) || TestPoint(br))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private bool testOBB_OBB(OBBCollider other)
+        {
+            {
+                Vector2 tl = new Vector2(Pos.X - HalfBounds.X, Pos.Y + HalfBounds.Y), tr = Pos + HalfBounds;
+                Vector2 bl = Pos - HalfBounds, br = new Vector2(Pos.X + HalfBounds.X, Pos.Y - HalfBounds.Y);
+
+                tl = getRotatedPoint(tl, 1);
+                tr = getRotatedPoint(tr, 1);
+                bl = getRotatedPoint(bl, 1);
+                br = getRotatedPoint(br, 1);
+
+                if (other.TestPoint(tl) || other.TestPoint(tr) || other.TestPoint(bl) || other.TestPoint(br))
+                {
+                    return true;
+                }
+            }
+
+            {
+                Vector2 tl = new Vector2(other.Pos.X - other.HalfBounds.X, other.Pos.Y + other.HalfBounds.Y), tr = other.Pos + other.HalfBounds;
+                Vector2 bl = other.Pos - other.HalfBounds, br = new Vector2(other.Pos.X + other.HalfBounds.X, other.Pos.Y - other.HalfBounds.Y);
+
+                tl = getRotatedPoint(tl, 1);
+                tr = getRotatedPoint(tr, 1);
+                bl = getRotatedPoint(bl, 1);
+                br = getRotatedPoint(br, 1);
+
+                if (TestPoint(tl) || TestPoint(tr) || TestPoint(bl) || TestPoint(br))
+                {
+                    return true;
+                }
+            }
             return false;
         }
 
         private bool testOBB_Circle(CircleCollider other)
         {
-            Vector2 rotatedCenter = getUnrotatedPointLocation(other.Pos);
+            Vector2 rotatedCenter = getRotatedPoint(other.Pos, -1);
 
             return testAABB_Circle_Internal(rotatedCenter, other.Radius);
         }
 
-        private bool testOBB_OBB(OBBCollider other)
-        {
-            return false;
-        }
-
         public override bool TestPoint(Vector2 point)
         {
-            return base.TestPoint(getUnrotatedPointLocation(point));
+            return base.TestPoint(getRotatedPoint(point, -1));
         }
 
         internal override bool IsMTCTHandledByThis(ColliderType otherType)
