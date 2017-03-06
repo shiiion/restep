@@ -5,6 +5,9 @@ using restep.Graphics;
 using restep.Framework.Logging;
 using restep.Graphics.Renderables;
 using restep.Graphics.Intermediate;
+using restep.Core.Collision;
+using restep.Core;
+using restep.Interface.Render;
 
 namespace restep
 {
@@ -12,82 +15,44 @@ namespace restep
     {
         static void Main(string[] args)
         {
+            RenderObject testOne = new RenderObject(new Vector2(50, 50));
+            RenderObject testTwo = new RenderObject(new Vector2(50, 50));
+
+            testTwo.Rotation = 0;
+
+            testOne.AddAABBCollider(new Vector2(25, 25));
+            testTwo.AddCircleCollider(25);
+
+            testOne.Position = new Vector2(50, 200);
+            testTwo.Position = new Vector2(50, 200);
+
             MessageLogger.InitializeRestepLogs();
 
             RestepWindow.Initialize(800, 800, "test");
             RestepRenderer.Initialize();
 
-            //TODO: autoscale TexturedQuads to their texture dims
-            ConvexPolygon cvp = new ConvexPolygon(new VertexData(new ConvexVertexFormat(),
-@"v_0.5_1_0
-v_0_0.5_0.5
-v_1_0.5_1.0"));
-            cvp.GradientRate = 0.1f;
-            cvp.ColorLow = new Vector4(1, 1, 0, 1);
-            cvp.ColorHigh = new Vector4(1, 0, 0, 1);
-
-            TexturedQuad receptor = new TexturedQuad(TestResources.TestArrow);
-            TexturedQuad arrow = new TexturedQuad(TestResources.TestArrow);
-
-            cvp.Transformation.Scale = new Vector2(64, 64);
-            receptor.Transformation.Scale = new Vector2(64, 64);
-            arrow.Transformation.Scale = new Vector2(64, 64);
-
-            cvp.Transformation.Translation = new Vector2(64, 64);
-            receptor.Transformation.Translation = new Vector2(400, 100);
-            arrow.Transformation.Translation = new Vector2(400, 400);
-
-            receptor.Transformation.Rotation = -(float)Math.PI / 2;
-            arrow.Transformation.Rotation = -(float)Math.PI / 2;
-
-            //depth ordering, first = top
-            //TODO: use Depth property to order meshes
-            RestepRenderer.Instance.RenderedObjects.Add(arrow);
-            RestepRenderer.Instance.RenderedObjects.Add(receptor);
-            RestepRenderer.Instance.RenderedObjects.Add(cvp);
-
-            receptor.Origin = new Vector2(0.5f, 0.5f);
-            arrow.Origin = new Vector2(0.5f, 0.5f);
+            TexturedQuad mesh1 = new TexturedQuad("d:/jpeg/ff.png");
+            TexturedQuad mesh2 = new TexturedQuad("d:/jpeg/circle.png");
             
+            mesh1.Depth = 0;
+            mesh2.Depth = 1;
 
-            bool leftPressed = false;
+            RenderInterface.AddPair(mesh1, testOne);
+            RenderInterface.AddPair(mesh2, testTwo);
 
             RestepWindow.Instance.UpdateFrame += (o, e) =>
             {
-                arrow.Transformation.Translation = new Vector2(arrow.Transformation.Translation.X, arrow.Transformation.Translation.Y - 6);
-                if (arrow.Transformation.Translation.Y < 0)
+                testOne.Position = testOne.Position + new Vector2(0.001f, 0.05f);
+                if (!testOne.TestCollision(testTwo))
                 {
-                    Console.WriteLine("awful! stop playing please!");
-                    arrow.Transformation.Translation = new Vector2(400, 400);
-                }
-
-                if (GetAsyncKeyState(0x25) != 0)
-                {
-                    if (!leftPressed)
-                    {
-                        leftPressed = true;
-                        Vector2 diff = Vector2.Subtract(arrow.Transformation.Translation, receptor.Transformation.Translation);
-                        if (diff.Length < 30)
-                        {
-                            Console.WriteLine("good!");
-                            arrow.Transformation.Translation = new Vector2(400, 400);
-                        }
-                        else
-                        {
-                            Console.WriteLine("bad!");
-                        }
-                    }
-                }
-                else
-                {
-                    leftPressed = false;
+                    Console.WriteLine(testOne.TestCollision(testTwo));
                 }
             };
 
             RestepWindow.Instance.Run(60, 60);
         }
 
-        [DllImport("user32.dll")]
-        public static extern short GetAsyncKeyState(int key);
     }
+
+
 }

@@ -2,11 +2,7 @@ This file is intended to list all tasks which i was too lazy/stupid to place int
 !!UPDATE THIS FILE FOR EVERY COMMIT!!
 
 RENDERING:
-	TODO: Design and write VertexData classes
-	TODO: Texture intermediate class
-	TODO: Manage rendering meshes in RestepWindow's render function
 	TODO: Splitting off primary (rendering) thread and logic thread 
-	TODO: RestepRenderer class (expand upon to handle draw order)
 	TODO: Optimization - Change all transform matrices to their transposed versions (profile before changing)
 	TODO: Texture atlasing
 

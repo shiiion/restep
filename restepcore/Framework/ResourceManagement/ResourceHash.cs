@@ -10,7 +10,7 @@ namespace restep.Framework.ResourceManagement
 {
     public delegate byte[] HashGenerator<T>(T dataIn);
 
-    internal struct ResourceHash
+    public struct ResourceHash
     {
         internal class RHComparer : IEqualityComparer<ResourceHash>
         {

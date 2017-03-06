@@ -6,7 +6,7 @@ namespace restep.Graphics.Renderables
     /// Represents a 2-D transformation, and gives a resulting 3x3 matrix
     /// <para>All shaders will use a 3x3 transformation matrix rather than 4x4 or 2x2</para>
     /// </summary>
-    internal class Transform
+    public sealed class Transform
     {
         private Matrix3 tmat;
         private Vector2 translation;
@@ -25,7 +25,7 @@ namespace restep.Graphics.Renderables
             {
                 translation = value;
                 refreshResult = true;
-                CreateTransformation(translation, out tmat);
+                CreateTranslation(translation, out tmat);
             }
         }
 
@@ -53,6 +53,7 @@ namespace restep.Graphics.Renderables
 
         private Matrix3 smat;
         private Vector2 scale;
+        private Vector2 baseScale;
         /// <summary>
         /// The scale of the resulting transformation
         /// Modifying this value invalidates the transformation cache
@@ -68,7 +69,22 @@ namespace restep.Graphics.Renderables
             {
                 scale = value;
                 refreshResult = true;
-                Matrix3.CreateScale(scale.X, scale.Y, 1, out smat);
+                Matrix3.CreateScale(scale.X * baseScale.X, scale.Y * baseScale.X, 1, out smat);
+            }
+        }
+
+        public Vector2 BaseScale
+        {
+            get
+            {
+                return baseScale;
+            }
+
+            set
+            {
+                baseScale = value;
+                refreshResult = true;
+                Matrix3.CreateScale(scale.X * baseScale.X, scale.Y * baseScale.X, 1, out smat);
             }
         }
 
@@ -117,6 +133,7 @@ namespace restep.Graphics.Renderables
             Translation = Vector2.Zero;
             Rotation = 0;
             Scale = Vector2.One;
+            BaseScale = Vector2.One;
             ScreenSpace = screenSpace;
         }
 
@@ -132,24 +149,24 @@ namespace restep.Graphics.Renderables
         {
             /* 2-D screenspace from matrix 3 (mix of scale and translation)
             [2/W   0    -1]
-            [0    -2/H   1]
+            [0    2/H   -1]
             [0     0     1]
             */
             outTransform.Row0 = new Vector3((2 / screenDims.X), 0, -1);
-            outTransform.Row1 = new Vector3(0, (-2 / screenDims.Y), 1);
+            outTransform.Row1 = new Vector3(0, (2 / screenDims.Y), -1);
             outTransform.Row2 = new Vector3(0, 0, 1);
         }
 
-        private void CreateTransformation(Vector2 transform, out Matrix3 outTransform)
+        private void CreateTranslation(Vector2 translate, out Matrix3 outTranslate)
         {
-            /* 2-D transformation from Matrix3:
+            /* 2-D translation from Matrix3:
             [1     0     X]
             [0     1     Y]
             [0     0     1]
             */
-            outTransform.Row0 = new Vector3(1, 0, transform.X);
-            outTransform.Row1 = new Vector3(0, 1, transform.Y);
-            outTransform.Row2 = new Vector3(0, 0, 1);
+            outTranslate.Row0 = new Vector3(1, 0, translate.X);
+            outTranslate.Row1 = new Vector3(0, 1, translate.Y);
+            outTranslate.Row2 = new Vector3(0, 0, 1);
         }
     }
 }

@@ -12,12 +12,12 @@ namespace restep.Graphics.Intermediate
     /// <summary>
     /// Standard types used for variables in GLSL
     /// </summary>
-    internal enum LayoutQualifierType
+    public enum LayoutQualifierType
     {
         Float = 1, Vec2 = 2, Vec3 = 3, Vec4 = 4
     }
 
-    internal abstract class DataFormat : IEnumerable<LayoutQualifierType>
+    public abstract class DataFormat : IEnumerable<LayoutQualifierType>
     {
         protected List<LayoutQualifierType> bufferOrder = new List<LayoutQualifierType>();
 
@@ -104,7 +104,7 @@ namespace restep.Graphics.Intermediate
         }
     }
 
-    internal class VertexData : CountableResource
+    public class VertexData : CountableResource
     {
         private class CustomBufferData : FlatMesh.BufferData
         {

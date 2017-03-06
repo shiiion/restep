@@ -13,7 +13,7 @@ namespace restep.Framework
         //TODO: move this elsewhere
         #region ~base shader code~
 
-        public static readonly string POST_SHADER_VTX =
+        public static readonly string FXAA_VTX =
             @"#version 330
               precision highp float;
               layout (location = 0) in vec2 position;
@@ -26,7 +26,7 @@ namespace restep.Framework
                   texCoord = (position + 1.0) / 2.0;
               }";
 
-        public static readonly string POST_SHADER_FRAG =
+        public static readonly string FXAA_FRAG =
             @"
             #version 330
             precision highp float;

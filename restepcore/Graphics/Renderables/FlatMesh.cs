@@ -8,9 +8,10 @@ using restep.Framework.Logging;
 namespace restep.Graphics.Renderables
 {
 
-    internal abstract class FlatMesh : IDisposable
+    public abstract class FlatMesh : IDisposable, IComparable<FlatMesh>
     {
         public static readonly int BUFFER_COUNT = 2;
+        private static ulong UID_COUNTER = 0;
 
         public float Depth { get; set; }
 
@@ -33,6 +34,11 @@ namespace restep.Graphics.Renderables
         /// The point within a mesh which the transform will rotate about
         /// </summary>
         public Vector2 Origin { get; set; }
+
+        /// <summary>
+        /// Unique identifier for this mesh, will be different for each (incrementally)
+        /// </summary>
+        public ulong MeshID { get; }
 
         protected uint vertexArray;
         protected uint[] vertexBuffers;
@@ -74,6 +80,9 @@ namespace restep.Graphics.Renderables
         public FlatMesh()
         {
             Transformation = new Transform(Framework.RestepGlobals.ContentAreaSize);
+
+            MeshID = UID_COUNTER;
+            UID_COUNTER++;
         }
 
         /// <summary>
@@ -164,5 +173,15 @@ namespace restep.Graphics.Renderables
         }
 
         public abstract void Dispose();
+
+        /// <summary>
+        /// Override of comparator to handle depth ordering
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
+        public int CompareTo(FlatMesh other)
+        {
+            return Depth.CompareTo(other.Depth);
+        }
     }
 }

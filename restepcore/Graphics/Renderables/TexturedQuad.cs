@@ -9,8 +9,6 @@ using restep.Framework.ResourceManagement;
 
 namespace restep.Graphics.Renderables
 {
-    //TODO optimization: texture store to save GL memory
-    //TODO optimization: texture reference counter
     //TODO optimization: texture atlasing
 
     /// <summary>
@@ -73,8 +71,8 @@ namespace restep.Graphics.Renderables
         {
             private static readonly BufferData[] quadVertices =
             {
-                new QuadBufferData(0, 0, 0, 0), new QuadBufferData(1, 0, 1, 0), new QuadBufferData(0, 1, 0, 1),
-                new QuadBufferData(1, 1, 1, 1), new QuadBufferData(1, 0, 1, 0), new QuadBufferData(0, 1, 0, 1)
+                new QuadBufferData(0, 0, 0, 1), new QuadBufferData(1, 0, 1, 1), new QuadBufferData(0, 1, 0, 0),
+                new QuadBufferData(1, 1, 1, 0), new QuadBufferData(1, 0, 1, 1), new QuadBufferData(0, 1, 0, 0)
             };
 
             public static uint VertexArray { get; private set; }
@@ -139,6 +137,8 @@ namespace restep.Graphics.Renderables
             attribSizes = TexturedQuad_Internal.Attribs;
 
             Loaded = true;
+
+            Transformation.BaseScale = QuadTexture.Dimensions;
         }
         
         public override void InitMeshVertices(VertexData data)

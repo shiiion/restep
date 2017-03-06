@@ -12,15 +12,8 @@ namespace restep.Graphics.Shaders
     /// <summary>
     /// Represents a compiled GLSL shader program
     /// </summary>
-    internal class Shader : IDisposable
+    public class Shader : IDisposable
     {
-        public enum RenderGroup
-        {
-            Scene, Postprocess
-        }
-
-        public RenderGroup ShaderRenderGroup { get; set; } = RenderGroup.Scene;
-
         public bool Loaded { get; private set; }
 
         /// <summary>

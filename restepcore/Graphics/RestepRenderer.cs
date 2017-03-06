@@ -1,6 +1,7 @@
 ﻿using System;
 using OpenTK.Graphics.OpenGL;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using restep.Framework.Exceptions;
 using restep.Framework.Logging;
 using restep.Graphics.Renderables;
@@ -12,7 +13,7 @@ namespace restep.Graphics
     /// Primary rendering control for restep
     /// <para>This does not control GL itself, rather what is drawn</para>
     /// </summary>
-    internal class RestepRenderer
+    public class RestepRenderer
     {
         #region ~singleton data~
         private static RestepRenderer instance;
@@ -49,18 +50,15 @@ namespace restep.Graphics
             GL.ClearColor(0, 0, 0, 0);
             //GL.FrontFace(FrontFaceDirection.Cw);
             GL.Enable(EnableCap.DepthTest);
-
             GL.Enable(EnableCap.Texture2D);
-
             GL.Enable(EnableCap.AlphaTest);
 
             GL.Disable(EnableCap.DepthTest);
-            GL.DepthFunc(DepthFunction.Always);
+            GL.DepthFunc(DepthFunction.Never);
 
             GL.DepthRange(0, 0);
 
             GL.Enable(EnableCap.Multisample);
-
             GL.Enable(EnableCap.Blend);
             GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
 
@@ -116,8 +114,8 @@ namespace restep.Graphics
         }
 
         #endregion
-
-        public ConcurrentBag<FlatMesh> RenderedObjects { get; set; }
+        
+        private List<FlatMesh> renderedObjects;
         private Shaders.Shader postBaseShader;
 
         public float RenderingTimeSlice { get; private set; }
@@ -125,11 +123,13 @@ namespace restep.Graphics
         private int sceneFramebuffer, framebufferTexture;
         private uint fbTexVArray, fbTexVertices;
 
+        private bool updateDepth;
+
         private RestepRenderer()
         {
-            RenderedObjects = new ConcurrentBag<FlatMesh>();
+            renderedObjects = new List<FlatMesh>();
             postBaseShader = new Shaders.Shader("POST_TEST", "");
-            postBaseShader.LoadShader(RestepGlobals.POST_SHADER_VTX, RestepGlobals.POST_SHADER_FRAG);
+            postBaseShader.LoadShader(RestepGlobals.FXAA_VTX, RestepGlobals.FXAA_FRAG);
             postBaseShader.Enabled = true;
 
             postBaseShader.AddUniform("FXAA_SPAN_MAX");
@@ -138,15 +138,65 @@ namespace restep.Graphics
             postBaseShader.AddUniform("frameBufferSize");
         }
 
+        /// <summary>
+        /// Tells rendering thread to reorder all meshes in list
+        /// TODO: optimize
+        /// </summary>
+        public void InvalidateDepth()
+        {
+            updateDepth = true;
+        }
+
+        public bool MeshExists(FlatMesh mesh)
+        {
+            foreach(FlatMesh m in renderedObjects)
+            {
+                if(mesh.MeshID == m.MeshID)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public void AddMesh(FlatMesh mesh)
+        {
+            lock (renderedObjects)
+            {
+                if (!MeshExists(mesh))
+                {
+                    renderedObjects.Add(mesh);
+                }
+            }
+
+            InvalidateDepth();
+        }
+
+        //this is only ever called when renderedObjects is locked
+        private void reorderMeshes()
+        {
+            renderedObjects.Sort();
+            updateDepth = false;
+        }
+
         public void Render(float deltaTime)
         {
+            Interface.Render.RenderInterface.UpdateAll();
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, sceneFramebuffer);
             GL.Clear(ClearBufferMask.ColorBufferBit);
             RenderingTimeSlice = deltaTime;
-            foreach (FlatMesh mesh in RenderedObjects)
+            lock(renderedObjects)
             {
-                mesh.PreRender();
-                mesh.Render();
+                if (updateDepth)
+                {
+                    reorderMeshes();
+                }
+
+                foreach (FlatMesh mesh in renderedObjects)
+                {
+                    mesh.PreRender();
+                    mesh.Render();
+                }
             }
         }
 

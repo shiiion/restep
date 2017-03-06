@@ -5,6 +5,7 @@ using OpenTK.Graphics.OpenGL;
 using restep.Framework.Exceptions;
 using restep.Framework.Logging;
 using restep.Framework.ResourceManagement;
+using OpenTK;
 
 namespace restep.Graphics.Renderables
 {
@@ -17,6 +18,8 @@ namespace restep.Graphics.Renderables
         /// Path to the texture on disk
         /// </summary>
         public string TexturePath { get; private set; }
+
+        public Vector2 Dimensions { get; private set; }
 
         private int textureHandle;
 
@@ -85,10 +88,10 @@ namespace restep.Graphics.Renderables
                 GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, bmpData.Width, bmpData.Height, 0, OpenTK.Graphics.OpenGL.PixelFormat.Bgra, PixelType.UnsignedByte, bmpData.Scan0);
 
                 image.UnlockBits(bmpData);
-
                 TexturePath = "@Resource";
-
                 Loaded = true;
+
+                Dimensions = new Vector2(image.Width, image.Height);
             }
             catch (LoggedException e)
             {

@@ -9,6 +9,12 @@
     <Import_RootNamespace>restep</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Core\Collision\AABBCollider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Core\Collision\CircleCollider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Core\Collision\Collider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Core\Collision\OBBCollider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Core\GameObject.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Core\RenderObject.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Framework\Exceptions\LoggedException.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Framework\Logging\LogStream.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Framework\Logging\MessageLogger.cs" />
@@ -25,5 +31,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\RestepRenderer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\RestepWindow.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\Shaders\Shader.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interface\Render\MeshObjectTuple.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interface\Render\RenderInterface.cs" />
   </ItemGroup>
 </Project>

@@ -6,12 +6,12 @@ using System.Text;
 
 namespace restep.Framework.ResourceManagement
 {
-    internal delegate void HashChangedDelegate(ResourceHash oldHash, ResourceHash newHash);
+    public delegate void HashChangedDelegate(ResourceHash oldHash, ResourceHash newHash);
 
     /// <summary>
     /// Abstract definition for any resource that will have references to it managed by ReferenceCounter
     /// </summary>
-    internal abstract class CountableResource
+    public abstract class CountableResource
     {
         public int RefCount { get; set; }
 

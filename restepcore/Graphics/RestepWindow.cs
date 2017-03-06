@@ -11,7 +11,7 @@ namespace restep.Graphics
     /// Window which will display all GL rendered components
     /// <para>This class is a singleton, see <see cref="Instance"/> and <see cref="Initialize(int, int, string, GraphicsContextFlags)"/></para>
     /// </summary>
-    internal class RestepWindow : GameWindow
+    public class RestepWindow : GameWindow
     {
         #region ~singleton data~
         public static bool Initialized { get; private set; } = false;
@@ -79,9 +79,6 @@ namespace restep.Graphics
         /// <param name="e"></param>
         protected override void OnRenderFrame(FrameEventArgs e)
         {
-
-            System.Console.WriteLine(e.Time); // Get framerate for performance logging
-
             base.OnRenderFrame(e);
             RestepRenderer.Instance.Render((float)e.Time);
             RestepRenderer.Instance.RenderPost((float)e.Time);
