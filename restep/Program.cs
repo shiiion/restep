@@ -8,6 +8,8 @@ using restep.Graphics.Intermediate;
 using restep.Core.Collision;
 using restep.Core;
 using restep.Interface.Render;
+using System.Threading;
+
 
 namespace restep
 {
@@ -31,6 +33,9 @@ namespace restep
             RestepWindow.Initialize(800, 800, "test");
             RestepRenderer.Initialize();
 
+            CoreThread.Instance.AddObject(testOne);
+            CoreThread.Instance.AddObject(testTwo);
+
             TexturedQuad mesh1 = new TexturedQuad("d:/jpeg/ff.png");
             TexturedQuad mesh2 = new TexturedQuad("d:/jpeg/cut.jpg");
             
@@ -39,21 +44,10 @@ namespace restep
 
             RenderInterface.AddPair(mesh1, testOne);
             RenderInterface.AddPair(mesh2, testTwo);
-            RestepWindow.Instance.UpdateFrame += (o, e) =>
+            CoreThread.Instance.Tick += (ft, objects) =>
             {
-                int cx = System.Windows.Forms.Cursor.Position.X - RestepWindow.Instance.X;
-                int cy = RestepWindow.Instance.Y - System.Windows.Forms.Cursor.Position.Y + 800;
-                if (cx > 0 && cx < 800 && cy > 0 && cy < 800)
-                {
-                    testOne.Position = new Vector2(cx, cy);
-                }
-
-                testOne.Rotation += 0.002f;
-
-
-
-                Console.WriteLine(testOne.TestCollision(testTwo));
-                
+                objects[0].Position = new Vector2(System.Windows.Forms.Cursor.Position.X - RestepWindow.Instance.X,
+                     800 + RestepWindow.Instance.Y - System.Windows.Forms.Cursor.Position.Y);
             };
 
             RestepWindow.Instance.Run(60, 60);

@@ -4,6 +4,7 @@ using OpenTK.Graphics.OpenGL;
 using restep.Framework.Logging;
 using restep.Framework.Exceptions;
 using restep.Graphics.Shaders;
+using System;
 
 namespace restep.Graphics
 {
@@ -58,6 +59,13 @@ namespace restep.Graphics
 
             Framework.RestepGlobals.ContentAreaSize = new Vector2(width, height);
             LoadBaseShaders();
+
+            Core.CoreThread.Initialize();
+
+            UpdateFrame += (o, e) =>
+            {
+                Core.CoreThread.Instance.Pulse();
+            };
         }
 
         private void LoadBaseShaders()
@@ -83,6 +91,18 @@ namespace restep.Graphics
             RestepRenderer.Instance.Render((float)e.Time);
             RestepRenderer.Instance.RenderPost((float)e.Time);
             SwapBuffers();
+        }
+
+        /// <summary>
+        /// Signal to the Core thread to exit
+        /// </summary>
+        /// <param name="e"></param>
+        protected override void OnClosed(EventArgs e)
+        {
+            base.OnClosed(e);
+
+            Core.CoreThread.Instance.Running = false;
+            Core.CoreThread.Instance.Pulse();
         }
     }
 }

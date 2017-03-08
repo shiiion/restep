@@ -18,17 +18,20 @@ namespace restep.Interface.Render
         /// </summary>
         public static void UpdateAll()
         {
-            lock(tupleList)
+            lock(CoreThread.Instance.CoreLock)
             {
-                foreach (MeshObjectTuple tuple in tupleList)
+                lock (tupleList)
                 {
-                    if (tuple.Mismatch())
+                    foreach (MeshObjectTuple tuple in tupleList)
                     {
-                        tuple.Mesh.Transformation.Translation = tuple.Object.Position;
-                        tuple.Mesh.Transformation.Rotation = tuple.Object.Rotation;
-                        tuple.Mesh.Transformation.Scale = tuple.Object.Scale;
-                        tuple.Mesh.Transformation.BaseScale = tuple.Object.ImageScale;
-                        tuple.Validate();
+                        if (tuple.Mismatch())
+                        {
+                            tuple.Mesh.Transformation.Translation = tuple.Object.Position;
+                            tuple.Mesh.Transformation.Rotation = tuple.Object.Rotation;
+                            tuple.Mesh.Transformation.Scale = tuple.Object.Scale;
+                            tuple.Mesh.Transformation.BaseScale = tuple.Object.ImageScale;
+                            tuple.Validate();
+                        }
                     }
                 }
             }

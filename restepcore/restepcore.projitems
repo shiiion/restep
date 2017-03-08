@@ -13,6 +13,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Core\Collision\CircleCollider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\Collision\Collider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\Collision\OBBCollider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Core\CoreThread.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\GameObject.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\RenderObject.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Framework\Exceptions\LoggedException.cs" />
@@ -33,5 +34,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\Shaders\Shader.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interface\Render\MeshObjectTuple.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interface\Render\RenderInterface.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="$(MSBuildThisFileDirectory)Input\" />
   </ItemGroup>
 </Project>
