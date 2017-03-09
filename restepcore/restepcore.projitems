@@ -32,10 +32,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\RestepRenderer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\RestepWindow.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\Shaders\Shader.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Input\InputManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interface\Render\MeshObjectTuple.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interface\Render\RenderInterface.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="$(MSBuildThisFileDirectory)Input\" />
   </ItemGroup>
 </Project>
