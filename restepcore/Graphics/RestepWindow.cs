@@ -64,6 +64,7 @@ namespace restep.Graphics
 
             UpdateFrame += (o, e) =>
             {
+                Input.InputManager.UpdateCursor(this);
                 Core.CoreThread.Instance.Pulse();
             };
         }

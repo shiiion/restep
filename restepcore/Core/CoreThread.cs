@@ -38,6 +38,7 @@ namespace restep.Core
                 {
                     float time = (sw.ElapsedMilliseconds - lastTime);
                     lastTime = sw.ElapsedMilliseconds;
+                    Input.InputManager.UpdateStates();
                     Tick?.Invoke(time / 1000.0f, ObjectList);
                     Monitor.Wait(CoreLock);
                 }

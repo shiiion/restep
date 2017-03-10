@@ -36,18 +36,23 @@ namespace restep
             CoreThread.Instance.AddObject(testOne);
             CoreThread.Instance.AddObject(testTwo);
 
-            TexturedQuad mesh1 = new TexturedQuad("d:/jpeg/ff.png");
-            TexturedQuad mesh2 = new TexturedQuad("d:/jpeg/cut.jpg");
-            
+            TexturedQuad mesh1 = new TexturedQuad("c:/users/shion/documents/up.png");
+            TexturedQuad mesh2 = new TexturedQuad("c:/users/shion/documents/up.png");
+
             mesh1.Depth = 0;
             mesh2.Depth = 1;
 
             RenderInterface.AddPair(mesh1, testOne);
             RenderInterface.AddPair(mesh2, testTwo);
+
+            Input.InputManager.AnyKeyPress += (k) =>
+            {
+                Console.Write(k.ToString());
+            };
+
             CoreThread.Instance.Tick += (ft, objects) =>
             {
-                objects[0].Position = new Vector2(System.Windows.Forms.Cursor.Position.X - RestepWindow.Instance.X,
-                     800 + RestepWindow.Instance.Y - System.Windows.Forms.Cursor.Position.Y);
+                objects[0].Position = new Vector2(800, 400);
             };
 
             RestepWindow.Instance.Run(60, 60);
