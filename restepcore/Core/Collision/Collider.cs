@@ -13,17 +13,12 @@ namespace restep.Core.Collision
         CT_CIRCLE
     }
 
-    //internal struct OverlapInfo
+    //TODO: collision testing
+    //internal struct CollisionInfo
     //{
     //    public Vector2 overlap;
     //    public Collider thisCollider, otherCollider;
-        
-    //    public OverlapInfo(Vector2 overlap, Collider t, Collider o)
-    //    {
-    //        thisCollider = t;
-    //        otherCollider = o;
-    //        this.overlap = overlap;
-    //    }
+
     //}
 
     public abstract class Collider
@@ -48,11 +43,11 @@ namespace restep.Core.Collision
         internal abstract bool IsMTCTHandledByThis(ColliderType otherType);
 
         /// <summary>
-        /// Tests collision between two colliders (subclasses MUST handle collision between all other subclasses)
+        /// Tests overlap between two colliders (subclasses MUST handle collision between all other subclasses)
         /// </summary>
         /// <param name="other">Other collider</param>
         /// <returns></returns>
-        public abstract bool TestCollision(Collider other);
+        public abstract bool TestOverlap(Collider other);
 
         /// <summary>
         /// Tests if a point is within the collider
@@ -60,6 +55,8 @@ namespace restep.Core.Collision
         /// <param name="point">Location of the point</param>
         /// <returns></returns>
         public abstract bool TestPoint(Vector2 point);
+
+        internal AABBCollider BBox { get; set; }
 
         public Collider(GameObject owner)
         {

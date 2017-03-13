@@ -252,7 +252,7 @@ namespace restep.Input
             MouseState state = Mouse.GetCursorState();
 
             var point = window.PointToClient(new System.Drawing.Point(state.X, state.Y));
-            CursorLoc = new Vector2(point.X, point.Y);
+            CursorLoc = new Vector2(point.X, (Framework.RestepGlobals.ContentAreaSize.Y - point.Y));
         }
     }
 }

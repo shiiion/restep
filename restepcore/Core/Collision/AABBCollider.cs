@@ -12,7 +12,6 @@ namespace restep.Core.Collision
     {
         public override ColliderType Type { get { return ColliderType.CT_AABB; } }
 
-
         private Vector2 boundsUnscaled;
         /// <summary>
         /// Describes the bounds of this object along the X and Y axes
@@ -29,12 +28,16 @@ namespace restep.Core.Collision
             }
         }
 
-        public AABBCollider(GameObject owner, Vector2 halfBounds) : base(owner)
+        public AABBCollider(GameObject owner, Vector2 halfBounds, bool createBBox) : base(owner)
         {
             HalfBounds = halfBounds;
+            if(createBBox)
+            {
+                BBox = new AABBCollider(owner, halfBounds, false);
+            }
         }
 
-        public override bool TestCollision(Collider other)
+        public override bool TestOverlap(Collider other)
         {
             switch(other.Type)
             {
@@ -43,9 +46,9 @@ namespace restep.Core.Collision
                 case ColliderType.CT_CIRCLE:
                     return testAABB_Circle((CircleCollider)other);
                 case ColliderType.CT_CONVEX:
-                    return other.TestCollision(this);
+                    return other.TestOverlap(this);
                 case ColliderType.CT_OBB:
-                    return other.TestCollision(this);
+                    return other.TestOverlap(this);
             }
             
             return false;

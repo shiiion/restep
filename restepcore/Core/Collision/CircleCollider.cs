@@ -43,18 +43,18 @@ namespace restep.Core.Collision
             Radius = radius;
         }
 
-        public override bool TestCollision(Collider other)
+        public override bool TestOverlap(Collider other)
         {
             switch (other.Type)
             {
                 case ColliderType.CT_AABB:
-                    return other.TestCollision(this);
+                    return other.TestOverlap(this);
                 case ColliderType.CT_CIRCLE:
                     return testCircle_Circle((CircleCollider)other);
                 case ColliderType.CT_CONVEX:
-                    return other.TestCollision(this);
+                    return other.TestOverlap(this);
                 case ColliderType.CT_OBB:
-                    return other.TestCollision(this);
+                    return other.TestOverlap(this);
             }
 
             return false;

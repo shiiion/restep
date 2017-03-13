@@ -17,6 +17,8 @@ namespace restep.Core
         public bool Running { get; set; } = false;
         public readonly object CoreLock = new object();
 
+        private Collision.ObjectPartitioner partitioner;
+
         public List<GameObject> ObjectList { get; set; } = new List<GameObject>();
 
         public static void Initialize()

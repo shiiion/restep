@@ -7,6 +7,8 @@ using restep.Core.Collision;
 
 namespace restep.Core
 {
+    public delegate void OverlapEvent(GameObject other);
+
     public class GameObject
     {
         private static ulong OBJECT_COUNTER = 0;
@@ -50,10 +52,14 @@ namespace restep.Core
             }
         }
 
+        public Vector4 GetBoundBox { get { return ObjectCollider.BBox; } }
+
         /// <summary>
         /// Unique ID of this object
         /// </summary>
         public ulong ObjectID { get; protected set; }
+
+        public event OverlapEvent Overlap;
 
         public GameObject()
         {
@@ -98,7 +104,12 @@ namespace restep.Core
 
         public bool TestCollision(GameObject other)
         {
-            return other.HasCollider && ObjectCollider.TestCollision(other.ObjectCollider);
+            return other.HasCollider && ObjectCollider.TestOverlap(other.ObjectCollider);
+        }
+
+        public void OnOverlap(GameObject other)
+        {
+            Overlap?.Invoke(other);
         }
     }
 }

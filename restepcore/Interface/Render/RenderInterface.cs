@@ -52,5 +52,16 @@ namespace restep.Interface.Render
                 tupleList.Add(new MeshObjectTuple(obj, mesh));
             }
         }
+
+        public static void OnResize(OpenTK.Vector2 newSize)
+        {
+            lock(tupleList)
+            {
+                foreach(MeshObjectTuple tuple in tupleList)
+                {
+                    tuple.Mesh.Transformation.ScreenSpace = newSize;
+                }
+            }
+        }
     }
 }

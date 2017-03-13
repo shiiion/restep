@@ -176,26 +176,20 @@ namespace restep.Framework
         /// List of shaders which will be used by all meshes (if enabled)
         /// </summary>
         public static List<Shader> LoadedShaders { get; private set; } = new List<Shader>();
-
-        private static Vector2 contentAreaSize;
+        
         /// <summary>
         /// Size of the Content Area of the RestepWindow
-        /// <para>Changing this value auto updates the RestepWindow's client size</para>
         /// </summary>
         public static Vector2 ContentAreaSize
         {
             get
             {
-                return contentAreaSize;
-            }
-
-            set
-            {
-                contentAreaSize = value;
                 if(RestepWindow.Initialized)
                 {
-                    RestepWindow.Instance.ClientSize = new System.Drawing.Size((int)contentAreaSize.X, (int)contentAreaSize.Y);
+                    return new Vector2(RestepWindow.Instance.ClientSize.Width, RestepWindow.Instance.ClientSize.Height);
                 }
+
+                return new Vector2(0, 0);
             }
         }
     }

@@ -13,6 +13,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Core\Collision\CircleCollider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\Collision\Collider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\Collision\OBBCollider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Core\Collision\ObjectPartitioner.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\CoreThread.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\GameObject.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\RenderObject.cs" />

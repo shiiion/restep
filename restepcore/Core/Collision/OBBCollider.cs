@@ -14,7 +14,15 @@ namespace restep.Core.Collision
         /// </summary>
         public float Rotation { get { return Owner.Rotation; } }
 
-        public OBBCollider(GameObject owner, Vector2 bounds) : base(owner, bounds) {}
+        public OBBCollider(GameObject owner, Vector2 bounds) : base(owner, bounds, false)
+        {
+            Vector2 tl = getRotatedPoint(new Vector2(Pos.X - HalfBounds.X, Pos.Y + HalfBounds.Y), 1), tr = getRotatedPoint(Pos + HalfBounds, 1);
+            Vector2 bl = getRotatedPoint(Pos - HalfBounds, 1), br = getRotatedPoint(new Vector2(Pos.X + HalfBounds.X, Pos.Y - HalfBounds.Y), 1);
+            
+            
+
+            BBox = new AABBCollider(owner, bounds, false);
+        }
 
         /// <summary>
         /// Rotates a point about the center of this OBB clockwise
@@ -32,7 +40,7 @@ namespace restep.Core.Collision
             return relRot + Pos;
         }
 
-        public override bool TestCollision(Collider other)
+        public override bool TestOverlap(Collider other)
         {
             switch(other.Type)
             {
@@ -43,7 +51,7 @@ namespace restep.Core.Collision
                 case ColliderType.CT_OBB:
                     return testOBB_OBB((OBBCollider)other);
                 case ColliderType.CT_CONVEX:
-                    return other.TestCollision(this);
+                    return other.TestOverlap(this);
             }
 
             return false;

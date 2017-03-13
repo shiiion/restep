@@ -48,6 +48,8 @@ namespace restep.Graphics
         }
         #endregion
 
+
+
         private RestepWindow(int width, int height, string title, GraphicsContextFlags gcf)
             : base(width, height, new GraphicsMode(new ColorFormat(8, 8, 8, 8), 16), title, 0, DisplayDevice.Default, 3, 1, GraphicsContextFlags.Default)
         {
@@ -57,9 +59,8 @@ namespace restep.Graphics
                 throw new LoggedException("Was not able to get requested GL version!", MessageLogger.RENDER_LOG, "RestepWindow");
             }
 
-            Framework.RestepGlobals.ContentAreaSize = new Vector2(width, height);
             LoadBaseShaders();
-
+            
             Core.CoreThread.Initialize();
 
             UpdateFrame += (o, e) =>
@@ -67,6 +68,8 @@ namespace restep.Graphics
                 Input.InputManager.UpdateCursor(this);
                 Core.CoreThread.Instance.Pulse();
             };
+
+            WindowBorder = WindowBorder.Fixed;
         }
 
         private void LoadBaseShaders()
@@ -104,6 +107,12 @@ namespace restep.Graphics
 
             Core.CoreThread.Instance.Running = false;
             Core.CoreThread.Instance.Pulse();
+        }
+
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+            //GL.Viewport(ClientRectangle);
         }
     }
 }
