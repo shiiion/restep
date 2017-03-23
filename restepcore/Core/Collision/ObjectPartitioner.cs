@@ -5,52 +5,46 @@ using OpenTK;
 
 namespace restep.Core.Collision
 {
+    public delegate void PossibleCollisionDelegate(GameObject t, GameObject o);
+    //bad ciode
     internal class ObjectPartitioner
     {
-        //private class QuadTree
-        //{
-        //    private List<GameObject> containedObjects;
-        //    private QuadTree[] children;
-        //    private int depth;
-        //    private QuadTree parent;
-        //    private Vector2 size;
-        //    private Vector2 location;
-
-        //    QuadTree(int depth, QuadTree parent, Vector2 size, Vector2 location)
-        //    {
-        //        this.depth = depth;
-        //        this.parent = parent;
-        //        this.size = size;
-        //        this.location = location;
-        //    }
-
-        //    //x,y = pos, z,w = size
-        //    public void Retrieve(Vector4 bounds, ref List<GameObject> outNearest)
-        //    {
-        //        if(bounds.X )
-        //    }
-        //}
-
         private List<GameObject> colliderList = new List<GameObject>();
 
         public void GetPossibleCollisions(GameObject refObject, ref List<GameObject> outPossibleCollisions)
         {
+            outPossibleCollisions.Clear();
+
             foreach(GameObject o in colliderList)
             {
-                if(o.ObjectID == refObject.ObjectID)
+                if(o.ObjectID == refObject.ObjectID || !o.HasCollider)
                 {
                     continue;
                 }
 
+                if(refObject.BoundsOverlap(o))
+                {
+                    outPossibleCollisions.Add(o);
+                }
+            }
+        }
 
+        public void ForEachPossibleCollision(PossibleCollisionDelegate pcCallback)
+        {
+            List<GameObject> objectList = new List<GameObject>();
+            foreach(GameObject t in colliderList)
+            {
+                GetPossibleCollisions(t, ref objectList);
+                foreach (GameObject o in objectList)
+                {
+                    pcCallback(t, o);
+                }
             }
         }
 
         public void AddNewObject(GameObject o)
         {
-            colliderObjects.Add(o);
+            colliderList.Add(o);
         }
-
-
     }
 }

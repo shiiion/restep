@@ -58,6 +58,8 @@ namespace restep.Core.Collision
 
         internal AABBCollider BBox { get; set; }
 
+        internal virtual void UpdateBBox() { }
+
         public Collider(GameObject owner)
         {
             Owner = owner;

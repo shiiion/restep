@@ -31,7 +31,7 @@ namespace restep.Core
         /// <summary>
         /// The collider defining the collision bounds of this object
         /// </summary>
-        protected Collider ObjectCollider { get; set; }
+        internal Collider ObjectCollider { get; set; }
 
         /// <summary>
         /// Tells whether or not this GameObject has a collider
@@ -51,8 +51,6 @@ namespace restep.Core
                 }
             }
         }
-
-        public Vector4 GetBoundBox { get { return ObjectCollider.BBox; } }
 
         /// <summary>
         /// Unique ID of this object
@@ -84,7 +82,7 @@ namespace restep.Core
         /// <param name="halfBounds">The width and height of the AABB / 2</param>
         public void AddAABBCollider(Vector2 halfBounds)
         {
-            ObjectCollider = new AABBCollider(this, halfBounds);
+            ObjectCollider = new AABBCollider(this, halfBounds, true);
         }
 
         /// <summary>
@@ -107,9 +105,16 @@ namespace restep.Core
             return other.HasCollider && ObjectCollider.TestOverlap(other.ObjectCollider);
         }
 
-        public void OnOverlap(GameObject other)
+        internal virtual void OnOverlap(GameObject other)
         {
             Overlap?.Invoke(other);
+        }
+
+        public bool BoundsOverlap(GameObject other)
+        {
+            ObjectCollider.UpdateBBox();
+            other.ObjectCollider.UpdateBBox();
+            return other.HasCollider && ObjectCollider.BBox.TestOverlap(other.ObjectCollider.BBox);
         }
     }
 }

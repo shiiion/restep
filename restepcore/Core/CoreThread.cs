@@ -34,6 +34,7 @@ namespace restep.Core
             Stopwatch sw = new Stopwatch();
             sw.Start();
             float lastTime = sw.ElapsedMilliseconds;
+            partitioner = new Collision.ObjectPartitioner();
             lock (CoreLock)
             {
                 while (Running)
@@ -42,8 +43,29 @@ namespace restep.Core
                     lastTime = sw.ElapsedMilliseconds;
                     Input.InputManager.UpdateStates();
                     Tick?.Invoke(time / 1000.0f, ObjectList);
+                    partitioner.ForEachPossibleCollision(OnPossibleCollision);
                     Monitor.Wait(CoreLock);
                 }
+            }
+        }
+
+        public void OnPossibleCollision(GameObject a, GameObject b)
+        {
+            bool overlapping = false;
+            if(a.ObjectCollider.Type == Collision.ColliderType.CT_AABB &&
+                b.ObjectCollider.Type == Collision.ColliderType.CT_AABB)
+            {
+                overlapping = true;
+            }
+            else
+            {
+                overlapping = a.TestCollision(b);
+            }
+
+            if(overlapping)
+            {
+                a.OnOverlap(b);
+                b.OnOverlap(a);
             }
         }
 
@@ -67,6 +89,7 @@ namespace restep.Core
             lock(CoreLock)
             {
                 ObjectList.Add(obj);
+                partitioner.AddNewObject(obj);
             }
         }
 

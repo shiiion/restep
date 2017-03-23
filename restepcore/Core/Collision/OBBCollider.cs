@@ -8,20 +8,39 @@ namespace restep.Core.Collision
     internal sealed class OBBCollider : AABBCollider
     {
         public override ColliderType Type { get { return ColliderType.CT_OBB; } }
-
+        
         /// <summary>
         /// Describes the rotation of this object about its center
         /// </summary>
         public float Rotation { get { return Owner.Rotation; } }
 
+        private float rotationSave;
+
+        internal override void UpdateBBox()
+        {
+            if (rotationSave != Rotation)
+            {
+                rotationSave = Rotation;
+                Vector2 tl = getRotatedPoint(new Vector2(Pos.X - HalfBounds.X, Pos.Y + HalfBounds.Y), 1), tr = getRotatedPoint(Pos + HalfBounds, 1);
+                Vector2 bl = getRotatedPoint(Pos - HalfBounds, 1), br = getRotatedPoint(new Vector2(Pos.X + HalfBounds.X, Pos.Y - HalfBounds.Y), 1);
+
+                Func<float, float, float> max = (lf, rt) => (lf > rt ? lf : rt);
+                Func<float, float, float> min = (lf, rt) => (lf < rt ? lf : rt);
+
+                float r = max(max(max(tl.X, tr.X), bl.X), br.X);
+                float l = min(min(min(tl.X, tr.X), bl.X), br.X);
+                float t = max(max(max(tl.Y, tr.Y), bl.Y), br.Y);
+                float b = min(min(min(tl.Y, tr.Y), bl.Y), br.Y);
+
+                BBox.HalfBounds = new Vector2((r - l) / 2.0f, (t - b) / 2.0f);
+            }
+        }
+
         public OBBCollider(GameObject owner, Vector2 bounds) : base(owner, bounds, false)
         {
-            Vector2 tl = getRotatedPoint(new Vector2(Pos.X - HalfBounds.X, Pos.Y + HalfBounds.Y), 1), tr = getRotatedPoint(Pos + HalfBounds, 1);
-            Vector2 bl = getRotatedPoint(Pos - HalfBounds, 1), br = getRotatedPoint(new Vector2(Pos.X + HalfBounds.X, Pos.Y - HalfBounds.Y), 1);
-            
-            
-
+            rotationSave = Rotation + 1;
             BBox = new AABBCollider(owner, bounds, false);
+            UpdateBBox();
         }
 
         /// <summary>

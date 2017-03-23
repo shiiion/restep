@@ -41,6 +41,7 @@ namespace restep.Core.Collision
         public CircleCollider(GameObject owner, float radius) : base(owner)
         {
             Radius = radius;
+            BBox = new AABBCollider(owner, new Vector2(radius, radius), false);
         }
 
         public override bool TestOverlap(Collider other)
