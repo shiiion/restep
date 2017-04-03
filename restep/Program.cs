@@ -52,11 +52,11 @@ namespace restep
             CoreThread.Instance.AddObject(test4);
             CoreThread.Instance.AddObject(test5);
 
-            TexturedQuad mesh1 = new TexturedQuad("d:/jpeg/oh my.png");
-            TexturedQuad mesh2 = new TexturedQuad("d:/jpeg/oh my.png");
-            TexturedQuad mesh3 = new TexturedQuad("d:/jpeg/oh my.png");
-            TexturedQuad mesh4 = new TexturedQuad("d:/jpeg/oh my.png");
-            TexturedQuad mesh5 = new TexturedQuad("d:/jpeg/oh my.png");
+            TexturedQuad mesh1 = new TexturedQuad("c:/users/shion/documents/UP.png");
+            TexturedQuad mesh2 = new TexturedQuad("c:/users/shion/documents/UP.png");
+            TexturedQuad mesh3 = new TexturedQuad("c:/users/shion/documents/UP.png");
+            TexturedQuad mesh4 = new TexturedQuad("c:/users/shion/documents/UP.png");
+            TexturedQuad mesh5 = new TexturedQuad("c:/users/shion/documents/UP.png");
 
             mesh1.Depth = 0;
             mesh2.Depth = 1;

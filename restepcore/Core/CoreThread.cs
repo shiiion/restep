@@ -93,6 +93,29 @@ namespace restep.Core
             }
         }
 
+        public void RemoveObject(GameObject obj)
+        {
+            lock(CoreLock)
+            {
+                ObjectList.Remove(obj);
+            }
+        }
+
+        public void RemoveObject(ulong id)
+        {
+            lock(CoreLock)
+            {
+                for (int a = 0; a < ObjectList.Count; a++)
+                {
+                    if (id == ObjectList[a].ObjectID)
+                    {
+                        ObjectList.RemoveAt(a);
+                        break;
+                    }
+                }
+            }
+        }
+
         public GameObject GetObject(ulong id)
         {
             foreach (GameObject obj in ObjectList)
