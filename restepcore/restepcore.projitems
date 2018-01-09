@@ -41,6 +41,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Input\InputManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interface\Render\MeshObjectTuple.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interface\Render\RenderInterface.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)UI\Element.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="$(MSBuildThisFileDirectory)Audio\" />
