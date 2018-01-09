@@ -25,7 +25,23 @@ namespace restep.Graphics.Renderables
             {
                 translation = value;
                 refreshResult = true;
-                CreateTranslation(translation, out tmat);
+                CreateTranslation(translation - baseTranslation, out tmat);
+            }
+        }
+
+        private Vector2 baseTranslation;
+        public Vector2 BaseTranslation
+        {
+            get
+            {
+                return baseTranslation;
+            }
+
+            set
+            {
+                baseTranslation = value;
+                refreshResult = true;
+                CreateTranslation(translation - baseTranslation, out tmat);
             }
         }
 
@@ -69,7 +85,7 @@ namespace restep.Graphics.Renderables
             {
                 scale = value;
                 refreshResult = true;
-                Matrix3.CreateScale(scale.X * baseScale.X, scale.Y * baseScale.X, 1, out smat);
+                Matrix3.CreateScale(scale.X * baseScale.X, scale.Y * baseScale.Y, 1, out smat);
             }
         }
 
@@ -84,7 +100,7 @@ namespace restep.Graphics.Renderables
             {
                 baseScale = value;
                 refreshResult = true;
-                Matrix3.CreateScale(scale.X * baseScale.X, scale.Y * baseScale.X, 1, out smat);
+                Matrix3.CreateScale(scale.X * baseScale.X, scale.Y * baseScale.Y, 1, out smat);
             }
         }
 

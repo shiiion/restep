@@ -90,6 +90,21 @@ namespace restep.Input
         {
             return keyStateList[(int)key].State;
         }
+
+        public static void RemovePressCallback(Key key, KeyEvent callback)
+        {
+            keyStateList[(int)key].KeyPress -= callback;
+        }
+
+        public static void RemoveReleaseCallback(Key key, KeyEvent callback)
+        {
+            keyStateList[(int)key].KeyRelease -= callback;
+        }
+
+        public static void RemoveHoldCallback(Key key, KeyEvent callback)
+        {
+            keyStateList[(int)key].KeyHold -= callback;
+        }
         #endregion
 
         #region Mouse Control

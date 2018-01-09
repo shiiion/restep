@@ -13,12 +13,13 @@ namespace restep.Interface.Render
     internal class MeshObjectTuple
     {
         public RenderObject Object { get; private set; }
-        public FlatMesh Mesh { get; private set; }
+        public List<FlatMesh> MeshList { get; private set; } = new List<FlatMesh>();
 
         public MeshObjectTuple(RenderObject obj, FlatMesh mesh)
         {
             Object = obj;
-            Mesh = mesh;
+            obj.ActiveMeshID = mesh.MeshID;
+            MeshList.Add(mesh);
         }
 
         public bool Mismatch()
@@ -28,6 +29,21 @@ namespace restep.Interface.Render
 
         public void Validate()
         {
+            foreach (FlatMesh Mesh in MeshList)
+            {
+                if (Mesh.MeshID == Object.ActiveMeshID)
+                {
+                    Mesh.Transformation.Translation = Object.Position;
+                    Mesh.Transformation.Rotation = Object.Rotation;
+                    Mesh.Transformation.Scale = Object.Scale;
+                    Mesh.Transformation.BaseScale = Object.ImageScale;
+                    Mesh.Transparency = Object.Transparency;
+                }
+                else
+                {
+                    Mesh.Transformation.BaseScale = new OpenTK.Vector2(0, 0);
+                }
+            }
             Object.Invalidated = false;
         }
     }

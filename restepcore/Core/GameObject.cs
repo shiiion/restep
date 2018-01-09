@@ -8,6 +8,7 @@ using restep.Core.Collision;
 namespace restep.Core
 {
     public delegate void OverlapEvent(GameObject other);
+    public delegate void ObjectTickEvent(double dt);
 
     public class GameObject
     {
@@ -24,14 +25,29 @@ namespace restep.Core
         public virtual float Rotation { get; set; }
 
         /// <summary>
+        /// Angular velocity of the object.
+        /// </summary>
+        public virtual float AngularVelocity { get; set; }
+
+        /// <summary>
         /// Scale of the object. This is linked to the bounds of several colliders (excluding CircleCollider) 
         /// </summary>
         public virtual Vector2 Scale { get; set; }
 
         /// <summary>
+        /// Direction and speed of the object
+        /// </summary>
+        public virtual Vector2 Velocity { get; set; }
+
+        /// <summary>
         /// The collider defining the collision bounds of this object
         /// </summary>
         internal Collider ObjectCollider { get; set; }
+
+        public double SpawnTime { get; set; }
+        public double LifeTime { get; set; }
+
+        public bool Destroy { get; set; }
 
         /// <summary>
         /// Tells whether or not this GameObject has a collider
@@ -59,8 +75,11 @@ namespace restep.Core
 
         public event OverlapEvent Overlap;
 
-        public GameObject()
+        public event ObjectTickEvent Tick;
+
+        public GameObject(double lifeTime = -1)
         {
+            LifeTime = lifeTime;
             ObjectID = OBJECT_COUNTER;
             OBJECT_COUNTER++;
 
@@ -112,9 +131,27 @@ namespace restep.Core
 
         public bool BoundsOverlap(GameObject other)
         {
+            if(ObjectCollider == null || other.ObjectCollider == null)
+            {
+                return false;
+            }
+
             ObjectCollider.UpdateBBox();
             other.ObjectCollider.UpdateBBox();
             return other.HasCollider && ObjectCollider.BBox.TestOverlap(other.ObjectCollider.BBox);
+        }
+
+        public void TickObject(double dt)
+        {
+            Tick?.Invoke(dt);
+            if(LifeTime > 0 && CoreThread.Instance.GetEngineTime() > SpawnTime + LifeTime)
+            {
+                Destroy = true;
+            }
+        }
+
+        public virtual void DisposeObject()
+        {
         }
     }
 }

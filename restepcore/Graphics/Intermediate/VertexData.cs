@@ -209,7 +209,7 @@ namespace restep.Graphics.Intermediate
                 {
                     continue;
                 }
-                string lineLower = line.ToLower();
+                string lineLower = line.ToLower().Trim();
                 string[] dataPoints = lineLower.Split('_');
                 switch (dataPoints[0])
                 {

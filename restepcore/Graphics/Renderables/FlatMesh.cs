@@ -40,6 +40,16 @@ namespace restep.Graphics.Renderables
         /// </summary>
         public ulong MeshID { get; }
 
+        /// <summary>
+        /// Transparency of the mesh to be rendered (not used in all cases)
+        /// </summary>
+        public float Transparency { get; set; }
+
+        /// <summary>
+        /// If false, the mesh is not translated by the camera
+        /// </summary>
+        public bool AttachedToScreen { get; set; } = true;
+
         protected uint vertexArray;
         protected uint[] vertexBuffers;
         protected int vertexCount;
@@ -83,6 +93,7 @@ namespace restep.Graphics.Renderables
 
             MeshID = UID_COUNTER;
             UID_COUNTER++;
+            Transparency = 1;
         }
 
         /// <summary>
@@ -159,7 +170,20 @@ namespace restep.Graphics.Renderables
         /// <summary>
         /// Called before Render is called. Used to set up rendering a mesh.
         /// </summary>
-        public abstract void PreRender();
+        public void PreRender()
+        {
+            if (AttachedToScreen)
+            {
+                Transformation.BaseTranslation = RestepRenderer.Instance.CameraLocation;
+            }
+            else
+            {
+                if(!Transformation.BaseTranslation.Equals(new Vector2(0, 0)))
+                {
+                    Transformation.BaseTranslation = new Vector2(0, 0);
+                }
+            }
+        }
 
         /// <summary>
         /// After a global shader (within RestepGlobals) has been bound

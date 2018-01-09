@@ -30,6 +30,7 @@ namespace restep.Graphics.Renderables
 
                 textureShader.AddUniform("transform");
                 textureShader.AddUniform("origin");
+                textureShader.AddUniform("transparency");
 
                 textureShader.Enabled = true;
 
@@ -113,12 +114,22 @@ namespace restep.Graphics.Renderables
         public TexturedQuad(string texPath = "")
         {
             QuadTexture = TextureResourceServer.ServeTexture(texPath);
+            if(QuadTexture == null)
+            {
+                Loaded = false;
+                return;
+            }
             InitMeshVertices();
         }
 
         public TexturedQuad(System.Drawing.Bitmap bitmap)
         {
             QuadTexture = TextureResourceServer.ServeTexture(bitmap);
+            if (QuadTexture == null)
+            {
+                Loaded = false;
+                return;
+            }
             InitMeshVertices();
         }
 
@@ -160,6 +171,7 @@ namespace restep.Graphics.Renderables
                 textureShader.UseShader();
                 textureShader.SetUniformMat3("transform", Transformation.Transformation);
                 textureShader.SetUniformVec2("origin", Origin.X, Origin.Y);
+                textureShader.SetUniformFloat("transparency", Transparency);
 
                 RenderMesh_Internal();
             }
@@ -168,14 +180,15 @@ namespace restep.Graphics.Renderables
                 MessageLogger.LogMessage(MessageLogger.RENDER_LOG, "TexturedQuad", MessageType.Warning, "Attempted to render a TexturedQuad before the class has been initialized! Check to make sure that a successful call is made to texturedQuad.InitClass!", true);
             }
         }
-
-        public override void PreRender() { }
-
+        
         protected override void OnBindGlobalShader(Shader gs) { }
 
         public override void Dispose()
         {
-            ReferenceCounter.ReleaseReference(QuadTexture);
+            if (QuadTexture != null)
+            {
+                ReferenceCounter.ReleaseReference(QuadTexture);
+            }
         }
     }
 }

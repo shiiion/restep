@@ -26,10 +26,6 @@ namespace restep.Interface.Render
                     {
                         if (tuple.Mismatch())
                         {
-                            tuple.Mesh.Transformation.Translation = tuple.Object.Position;
-                            tuple.Mesh.Transformation.Rotation = tuple.Object.Rotation;
-                            tuple.Mesh.Transformation.Scale = tuple.Object.Scale;
-                            tuple.Mesh.Transformation.BaseScale = tuple.Object.ImageScale;
                             tuple.Validate();
                         }
                     }
@@ -49,7 +45,39 @@ namespace restep.Interface.Render
             {
                 mesh.Origin = new OpenTK.Vector2(0.5f, 0.5f);
                 Graphics.RestepRenderer.Instance.AddMesh(mesh);
+                foreach(MeshObjectTuple tuple in tupleList)
+                {
+                    if(tuple.Object.ObjectID == obj.ObjectID)
+                    {
+                        tuple.MeshList.Add(mesh);
+                        return;
+                    }
+                }
                 tupleList.Add(new MeshObjectTuple(obj, mesh));
+            }
+        }
+
+        public static void RemovePair(RenderObject obj)
+        {
+            lock(tupleList)
+            {
+                MeshObjectTuple remove = null;
+                foreach(MeshObjectTuple tuple in tupleList)
+                {
+                    if(tuple.Object.ObjectID == obj.ObjectID)
+                    {
+                        remove = tuple;
+                        break;
+                    }
+                }
+                if (remove != null)
+                {
+                    foreach (FlatMesh m in remove.MeshList)
+                    {
+                        Graphics.RestepRenderer.Instance.RemoveMesh(m);
+                        m.Dispose();
+                    }
+                }
             }
         }
 
@@ -57,9 +85,12 @@ namespace restep.Interface.Render
         {
             lock(tupleList)
             {
-                foreach(MeshObjectTuple tuple in tupleList)
+                foreach (MeshObjectTuple tuple in tupleList)
                 {
-                    tuple.Mesh.Transformation.ScreenSpace = newSize;
+                    foreach (FlatMesh m in tuple.MeshList)
+                    {
+                        m.Transformation.ScreenSpace = newSize;
+                    }
                 }
             }
         }

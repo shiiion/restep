@@ -120,28 +120,26 @@ namespace restep.Framework
               out vec4 fragColor;
 
               uniform sampler2D diffuse;
+              uniform float transparency;
               
               in vec2 tcoord0;
 
               void main()
               {
                   fragColor = texture2D(diffuse, tcoord0);
+                  fragColor.w *= transparency;
               }";
 
         public static readonly string COLOR_SHADER_VTX =
             @"#version 330
               precision highp float;
               layout (location = 0) in vec2 position;
-              layout (location = 1) in float gradient;
 
               uniform mat3 transform;
               uniform vec2 origin;
 
-              out float grad;
-
               void main()
               {
-                  grad = gradient;
                   vec3 positionTransform = transform * vec3((position - origin), 1.0);
                   gl_Position = vec4(positionTransform.xy, 0.0, 1.0);
               }";
@@ -151,22 +149,11 @@ namespace restep.Framework
               precision highp float;
               out vec4 fragColor;
 
-              uniform vec4 colorA;
-              uniform vec4 colorB;
-              uniform float gradInc;
-
-              in float grad;
+              uniform vec4 color;
 
               void main()
               {
-                  if(fract(grad + gradInc) > 0.5)
-                  {
-                      fragColor = mix(colorB, colorA, 2 * (fract(grad + gradInc) - 0.5));
-                  }
-                  else
-                  {
-                      fragColor = mix(colorA, colorB, 2 * fract(grad + gradInc));
-                  }
+                  fragColor = color;
               }";//              uniform vec4 colorA;mix(colorA, colorB, grdAt)
         //vec3 positionTransform = transform * vec3((position - origin), 1.0);
 

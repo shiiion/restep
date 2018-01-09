@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using OpenTK;
 
-namespace restep.Core.Collision
+namespace restep.Core.Physics.CollisionTypes
 {
     internal sealed class OBBCollider : AABBCollider
     {

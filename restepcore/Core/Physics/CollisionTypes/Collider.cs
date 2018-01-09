@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 using OpenTK;
+using restep.Framework.Misc;
 
-namespace restep.Core.Collision
+namespace restep.Core.Physics.CollisionTypes
 {
     public enum ColliderType
     {
@@ -21,7 +22,7 @@ namespace restep.Core.Collision
 
     //}
 
-    public abstract class Collider
+    public abstract class Collider : IBoundingBox
     {
         public GameObject Owner { get; set; }
 
@@ -29,6 +30,16 @@ namespace restep.Core.Collision
         /// Center of this collider
         /// </summary>
         public Vector2 Pos { get { return Owner.Position; } }
+
+        /// <summary>
+        /// Velocity of this collider
+        /// </summary>
+        public Vector2 Vel { get { return Owner.Velocity; } }
+        
+        /// <summary>
+        /// Mass of this collider
+        /// </summary>
+        public float Mass { get; set; }
 
         /// <summary>
         /// Specifies the collision type of this collider
@@ -56,6 +67,11 @@ namespace restep.Core.Collision
         /// <returns></returns>
         public abstract bool TestPoint(Vector2 point);
 
+        /// <summary>
+        /// Gets the intertial tensor
+        /// </summary>
+        public abstract float InertiaTensor { get; }
+
         internal AABBCollider BBox { get; set; }
 
         internal virtual void UpdateBBox() { }
@@ -64,5 +80,40 @@ namespace restep.Core.Collision
         {
             Owner = owner;
         }
+
+        #region IBoundingBox
+
+        public float GetLeft()
+        {
+            return BBox.Pos.X - BBox.HalfBounds.X;
+        }
+
+        public float GetRight()
+        {
+            return BBox.Pos.X + BBox.HalfBounds.X;
+        }
+
+        public float GetTop()
+        {
+            return BBox.Pos.Y + BBox.HalfBounds.Y;
+        }
+
+        public float GetBottom()
+        {
+            return BBox.Pos.Y - BBox.HalfBounds.Y;
+        }
+
+        public Vector2 GetCenter()
+        {
+            return Pos;
+        }
+
+        public Vector2 GetHalfDims()
+        {
+            return BBox.HalfBounds;
+        }
+
+#endregion
+
     }
 }

@@ -8,7 +8,7 @@ namespace restep.Core
     public class RenderObject : GameObject
     {
         public bool Invalidated { get; set; } = true;
-
+        
         public override Vector2 Position
         {
             get { return base.Position; }
@@ -28,6 +28,18 @@ namespace restep.Core
             {
                 Invalidated = true;
                 base.Rotation = value;
+            }
+        }
+
+        private ulong activeMeshID;
+        public ulong ActiveMeshID
+        {
+            get { return activeMeshID; }
+
+            set
+            {
+                Invalidated = true;
+                activeMeshID = value;
             }
         }
 
@@ -54,9 +66,27 @@ namespace restep.Core
             }
         }
 
-        public RenderObject(Vector2 imgScale)
+        private float transparency;
+        public float Transparency
+        {
+            get { return transparency; }
+
+            set
+            {
+                Invalidated = true;
+                transparency = value;
+            }
+        }
+
+        public RenderObject(Vector2 imgScale, float lifeTime = -1) : base(lifeTime)
         {
             ImageScale = imgScale;
+            transparency = 1;
+        }
+
+        public override void DisposeObject()
+        {
+            Interface.Render.RenderInterface.RemovePair(this);
         }
     }
 }

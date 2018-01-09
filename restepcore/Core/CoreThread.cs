@@ -17,9 +17,10 @@ namespace restep.Core
         public bool Running { get; set; } = false;
         public readonly object CoreLock = new object();
 
-        private Collision.ObjectPartitioner partitioner;
+        public Collision.DualColliderPartitioner partitioner;
 
         public List<GameObject> ObjectList { get; set; } = new List<GameObject>();
+        private Stopwatch sw;
 
         public static void Initialize()
         {
@@ -27,14 +28,41 @@ namespace restep.Core
             Instance.Start();
         }
 
-        public CoreThread() {}
+        public CoreThread()
+        {
+            Tick += (dt, objects) =>
+            {
+                for(int a=0;a<objects.Count;a++)
+                {
+                    if(objects[a].Destroy)
+                    {
+                        partitioner.RemoveObject(objects[a]);
+                        objects[a].DisposeObject();
+                        objects.RemoveAt(a);
+                        a--;
+                        continue;
+                    }
+                    objects[a].Position += objects[a].Velocity * dt;
+                    objects[a].TickObject(dt);
+                }
+            };
+        }
+
+        public float GetEngineTime()
+        {
+            if(sw != null)
+            {
+                return sw.ElapsedMilliseconds / 1000.0f;
+            }
+            return 0;
+        }
 
         private void coreFunction()
         {
-            Stopwatch sw = new Stopwatch();
+            sw = new Stopwatch();
             sw.Start();
             float lastTime = sw.ElapsedMilliseconds;
-            partitioner = new Collision.ObjectPartitioner();
+            partitioner = new Collision.DualColliderPartitioner(null, null);
             lock (CoreLock)
             {
                 while (Running)
@@ -49,24 +77,9 @@ namespace restep.Core
             }
         }
 
-        public void OnPossibleCollision(GameObject a, GameObject b)
+        public bool OnPossibleCollision(GameObject a, GameObject b)
         {
-            bool overlapping = false;
-            if(a.ObjectCollider.Type == Collision.ColliderType.CT_AABB &&
-                b.ObjectCollider.Type == Collision.ColliderType.CT_AABB)
-            {
-                overlapping = true;
-            }
-            else
-            {
-                overlapping = a.TestCollision(b);
-            }
-
-            if(overlapping)
-            {
-                a.OnOverlap(b);
-                b.OnOverlap(a);
-            }
+            return a.TestCollision(b);
         }
 
         public void Start()
@@ -88,6 +101,7 @@ namespace restep.Core
         {
             lock(CoreLock)
             {
+                obj.SpawnTime = GetEngineTime();
                 ObjectList.Add(obj);
                 partitioner.AddNewObject(obj);
             }

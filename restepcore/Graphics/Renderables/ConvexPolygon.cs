@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using restep.Framework.Logging;
@@ -15,41 +14,17 @@ namespace restep.Graphics.Renderables
         protected override void InitFormat()
         {
             bufferOrder.Add(LayoutQualifierType.Vec2);
-            bufferOrder.Add(LayoutQualifierType.Float);
         }
     }
 
     internal class ConvexPolygon : FlatMesh
     {
         private static Shader colorShader = null;
-
-        /// <summary>
-        /// The lower-end color this polygon will transition between
-        /// </summary>
-        public Vector4 ColorLow { get; set; }
-        /// <summary>
-        /// the upper-end color this polygon will transition between
-        /// </summary>
-        public Vector4 ColorHigh { get; set; }
-
+        
         /// <summary>
         /// Sets the color of both ColorLow and ColorHigh to the same value;
         /// </summary>
-        public Vector4 Color
-        {
-            set
-            {
-                ColorLow = value;
-                ColorHigh = value;
-            }
-        }
-
-        /// <summary>
-        /// The number of full graduations this polygon will go through in one second
-        /// </summary>
-        public float GradientRate { get; set; } = 1;
-
-        private float gradientAmount = 0;
+        public Vector4 Color { get; set; }
 
         /// <summary>
         /// This should be auto-called by RestepWindow 
@@ -63,9 +38,7 @@ namespace restep.Graphics.Renderables
 
                 colorShader.AddUniform("transform");
                 colorShader.AddUniform("origin");
-                colorShader.AddUniform("colorA");
-                colorShader.AddUniform("colorB");
-                colorShader.AddUniform("gradInc");
+                colorShader.AddUniform("color");
 
                 colorShader.Enabled = true;
 
@@ -95,7 +68,7 @@ namespace restep.Graphics.Renderables
                 return;
             }
             //TODO: cleanup old vertices if exist
-            vertexBuffers = new uint[2];
+            vertexBuffers = new uint[1];
 
             GL.GenVertexArrays(1, out vertexArray);
             GL.BindVertexArray(vertexArray);
@@ -104,9 +77,6 @@ namespace restep.Graphics.Renderables
             
             GL.BindBuffer(BufferTarget.ArrayBuffer, vertexBuffers[0]);
             GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(data.BuffersOut[0].Length * sizeof(float)), data.BuffersOut[0], BufferUsageHint.StaticDraw);
-            
-            GL.BindBuffer(BufferTarget.ArrayBuffer, vertexBuffers[1]);
-            GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(data.BuffersOut[1].Length * sizeof(float)), data.BuffersOut[1], BufferUsageHint.StaticDraw);
 
             vertexCount = data.VertexCount;
 
@@ -116,11 +86,7 @@ namespace restep.Graphics.Renderables
 
             GL.BindVertexArray(0);
         }
-
-        public override void PreRender()
-        {
-        }
-
+        
         protected override void RenderWithMeshShaders()
         {
             if (colorShader != null && colorShader.Loaded)
@@ -128,12 +94,9 @@ namespace restep.Graphics.Renderables
                 colorShader.UseShader();
                 colorShader.SetUniformMat3("transform", Transformation.Transformation);
                 colorShader.SetUniformVec2("origin", Origin.X, Origin.Y);
-                colorShader.SetUniformVec4("colorA", ColorLow);
-                colorShader.SetUniformVec4("colorB", ColorHigh);
-                colorShader.SetUniformFloat("gradInc", gradientAmount);
+                colorShader.SetUniformVec4("color", Color);
 
                 RenderMesh_Internal();
-                gradientAmount += GradientRate * RestepRenderer.Instance.RenderingTimeSlice;
             }
             else
             {

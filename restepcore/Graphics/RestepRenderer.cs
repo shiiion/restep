@@ -1,7 +1,8 @@
 ﻿using System;
+using OpenTK;
 using OpenTK.Graphics.OpenGL;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
+using restep.Core;
 using restep.Framework.Exceptions;
 using restep.Framework.Logging;
 using restep.Graphics.Renderables;
@@ -15,6 +16,7 @@ namespace restep.Graphics
     /// </summary>
     public class RestepRenderer
     {
+
         #region ~singleton data~
         private static RestepRenderer instance;
         /// <summary>
@@ -120,6 +122,23 @@ namespace restep.Graphics
 
         public float RenderingTimeSlice { get; private set; }
 
+        public Vector2 CameraLocation { get; set; }
+        public bool IsTracking { get; set; }
+        public float DampingAmount { get; set; }
+        public GameObject TrackObject { get; set; }
+        public Vector2 TrackCenter { get; set; }
+        
+        public enum TrackingLock
+        {
+            HORIZONTAL_LOCK,
+            VERTICAL_LOCK,
+            NO_LOCK
+        }
+        public TrackingLock CameraLock { get; set; }
+
+
+        public Background BackgroundImage { get; set; }
+
         private int sceneFramebuffer, framebufferTexture;
         private uint fbTexVArray, fbTexVertices;
 
@@ -136,6 +155,10 @@ namespace restep.Graphics
             postBaseShader.AddUniform("FXAA_REDUCE_MUL");
             postBaseShader.AddUniform("FXAA_REDUCE_MIN");
             postBaseShader.AddUniform("frameBufferSize");
+            DampingAmount = 1;
+            BackgroundImage = new Background();
+            CameraLock = TrackingLock.NO_LOCK;
+            TrackCenter = new Vector2(RestepWindow.Instance.Width / 2, RestepWindow.Instance.Height / 2);
         }
 
         /// <summary>
@@ -172,6 +195,18 @@ namespace restep.Graphics
             InvalidateDepth();
         }
 
+        public void RemoveMesh(FlatMesh mesh)
+        {
+            lock(renderedObjects)
+            {
+                if(MeshExists(mesh))
+                {
+                    renderedObjects.Remove(mesh);
+                }
+            }
+            //dont invalidate, order still maintained
+        }
+
         //this is only ever called when renderedObjects is locked
         private void reorderMeshes()
         {
@@ -185,12 +220,39 @@ namespace restep.Graphics
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, sceneFramebuffer);
             GL.Clear(ClearBufferMask.ColorBufferBit);
             RenderingTimeSlice = deltaTime;
+
+            if (IsTracking && TrackObject != null)
+            {
+                Vector2 targetLoc = new Vector2(TrackObject.Position.X - TrackCenter.X,
+                                             TrackObject.Position.Y - TrackCenter.Y);
+                Vector2 deltaLoc = targetLoc - CameraLocation;
+                deltaLoc *= DampingAmount;
+                if (CameraLock == TrackingLock.HORIZONTAL_LOCK)
+                {
+                    CameraLocation += new Vector2(0, deltaLoc.Y);
+                }
+                else if(CameraLock == TrackingLock.VERTICAL_LOCK)
+                {
+                    CameraLocation += new Vector2(deltaLoc.X, 0);
+                }
+                else
+                {
+                    CameraLocation += deltaLoc;
+                }
+            }
+
             lock(renderedObjects)
             {
+                if(renderedObjects.Count == 0)
+                {
+                    return;
+                }
                 if (updateDepth)
                 {
                     reorderMeshes();
                 }
+
+                BackgroundImage?.Render(renderedObjects[0].Depth - 1);
 
                 foreach (FlatMesh mesh in renderedObjects)
                 {

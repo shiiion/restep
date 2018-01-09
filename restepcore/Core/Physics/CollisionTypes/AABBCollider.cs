@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using OpenTK;
 
-namespace restep.Core.Collision
+namespace restep.Core.Physics.CollisionTypes
 {
     /// <summary>
     /// Standard Axis-Aligned Bounding-Box, where Pos is the center of the AABB
@@ -27,6 +27,11 @@ namespace restep.Core.Collision
                 boundsUnscaled = value;
             }
         }
+
+        /// <summary>
+        /// Intertial tensor for a box equals m(W^2 + H^2)/12
+        /// </summary>
+        public override float InertiaTensor => (Mass * (HalfBounds.X * HalfBounds.X + HalfBounds.Y * HalfBounds.Y)) / 12.0f;
 
         public AABBCollider(GameObject owner, Vector2 halfBounds, bool createBBox) : base(owner)
         {

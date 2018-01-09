@@ -126,12 +126,17 @@ namespace restep.Graphics.Renderables
                 bmp = new Bitmap(path);
                 LoadTexture(bmp);
             }
-            finally
+            catch
             {
                 if (bmp != null)
                 {
                     bmp.Dispose();
                 }
+                return;
+            }
+            if (bmp != null)
+            {
+                bmp.Dispose();
             }
             IdentifierHash = ResourceHash.CreateHash(path);
         }

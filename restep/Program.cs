@@ -9,95 +9,76 @@ using restep.Core.Collision;
 using restep.Core;
 using restep.Interface.Render;
 using System.Threading;
+using System.Threading.Tasks;
+using System.Media;
 
 
 namespace restep
 {
     class Program
     {
-        static void Main(string[] args)
+        private static float ang(Vector2 a, Vector2 b)
         {
-            RenderObject test1 = new RenderObject(new Vector2(100, 100));
-            RenderObject test2 = new RenderObject(new Vector2(100, 100));
-            RenderObject test3 = new RenderObject(new Vector2(100, 100));
-            RenderObject test4 = new RenderObject(new Vector2(100, 100));
-            RenderObject test5 = new RenderObject(new Vector2(100, 100));
-            
+            //|a||b|cos theta = a*b
 
-            test1.Position = new Vector2(200, 400);
-            test2.Position = new Vector2(300, 400);
-            test3.Position = new Vector2(400, 400);
-            test4.Position = new Vector2(500, 400);
-            test5.Position = new Vector2(600, 400);
-            test1.Overlap += (b) =>
+            return (float)Math.Acos(Vector2.Dot(a, b) / (a.Length * b.Length));
+        }
+
+        static void mainLoop()
+        {
+            TexturedQuad q = new TexturedQuad(TestResources.TestArrow);
+            TexturedQuad q2 = new TexturedQuad(TestResources.TestReceptor);
+            TexturedQuad q3 = new TexturedQuad("resource/circle.png");
+            TexturedQuad q4 = new TexturedQuad("resource/line.png");
+
+            RenderObject arrow1 = new RenderObject(new Vector2(50, 50));
+            RenderObject arrow2 = new RenderObject(new Vector2(50, 50));
+            RenderObject circle = new RenderObject(new Vector2(200, 200));
+            RenderObject line = new RenderObject(new Vector2(200, 200));
+
+
+            RenderInterface.AddPair(q, arrow1);
+            RenderInterface.AddPair(q2, arrow2);
+            RenderInterface.AddPair(q3, circle);
+            RenderInterface.AddPair(q4, line);
+
+            arrow1.Position = new Vector2(200, 200);
+            arrow2.Position = new Vector2(400, 200);
+            circle.Position = new Vector2(400, 400);
+            line.Position = new Vector2(400, 510);
+            line.Rotation = (float)Math.PI / 2.0f;
+
+            CoreThread.Instance.Tick += (a, b) =>
             {
-                //Console.Write("overlap");
-            };
-
-            test1.AddOBBCollider(new Vector2(50, 50));
-            test2.AddOBBCollider(new Vector2(50, 50));
-            test3.AddOBBCollider(new Vector2(50, 50));
-            test4.AddOBBCollider(new Vector2(50, 50));
-            test5.AddOBBCollider(new Vector2(50, 50));
-
-            MessageLogger.InitializeRestepLogs();
-
-            RestepWindow.Initialize(800, 800, "test");
-            RestepRenderer.Initialize();
-            
-
-            CoreThread.Instance.AddObject(test1);
-            CoreThread.Instance.AddObject(test2);
-            CoreThread.Instance.AddObject(test3);
-            CoreThread.Instance.AddObject(test4);
-            CoreThread.Instance.AddObject(test5);
-
-            TexturedQuad mesh1 = new TexturedQuad("d:/jpeg/oh my.png");
-            TexturedQuad mesh2 = new TexturedQuad("d:/jpeg/oh my.png");
-            TexturedQuad mesh3 = new TexturedQuad("d:/jpeg/oh my.png");
-            TexturedQuad mesh4 = new TexturedQuad("d:/jpeg/oh my.png");
-            TexturedQuad mesh5 = new TexturedQuad("d:/jpeg/oh my.png");
-
-            mesh1.Depth = 0;
-            mesh2.Depth = 1;
-
-            RenderInterface.AddPair(mesh1, test1);
-            RenderInterface.AddPair(mesh2, test2);
-            RenderInterface.AddPair(mesh3, test3);
-            RenderInterface.AddPair(mesh4, test4);
-            RenderInterface.AddPair(mesh5, test5);
-
-            long time = System.DateTime.Now.Ticks;
-
-            Input.InputManager.AnyKeyHold += (k) =>
-            {
-                Console.WriteLine(System.DateTime.Now.Ticks - time);
-                time = System.DateTime.Now.Ticks;
-                switch (k)
+                if(Input.InputManager.GetMouseButtonState(OpenTK.Input.MouseButton.Left) == Input.ControlState.HOLD)
                 {
-                    case OpenTK.Input.Key.Left:
-                        test1.Position += new Vector2(-1, 0);
-                        break;
-                    case OpenTK.Input.Key.Right:
-                        test1.Position += new Vector2(1, 0);
-                        break;
-                    case OpenTK.Input.Key.Up:
-                        test1.Position += new Vector2(0, 1);
-                        break;
-                    case OpenTK.Input.Key.Down:
-                        test1.Position += new Vector2(0, -1);
-                        break;
-                    case OpenTK.Input.Key.End:
-                        test1.Rotation += 0.01f;
-                        test2.Rotation += 0.04f;
-                        test3.Rotation += 0.09f;
-                        test4.Rotation += 0.16f;
-                        test5.Rotation += 0.25f;
-                        break;
+                    Vector2 mouseLoc = Input.InputManager.CursorLoc;
+                    Vector2 diff = mouseLoc - (new Vector2(400, 400));
+                    float angle = -ang(diff, new Vector2(1, 0));
+                    if(diff.Y < 0.0f)
+                    {
+                        angle = ((float)Math.PI * 2.0f) - angle;
+                    }
+
+                    Vector2 diffNorm = diff.Normalized();
+
+                    line.Position = new Vector2(400, 400) + 110 * diffNorm;
+                    line.Rotation = angle;
                 }
             };
 
+
+
             RestepWindow.Instance.Run(60, 60);
+        }
+
+        static void Main(string[] args)
+        {
+            MessageLogger.InitializeRestepLogs();
+
+            RestepWindow.Initialize(800, 800, "Test Run");
+            RestepRenderer.Initialize();
+            mainLoop();
         }
 
     }

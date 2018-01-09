@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using OpenTK;
 
-namespace restep.Core.Collision
+namespace restep.Core.Physics.CollisionTypes
 {
     /// <summary>
     /// Circular collision bounds
@@ -11,7 +11,7 @@ namespace restep.Core.Collision
     class CircleCollider : Collider
     {
         /// <summary>
-        /// If there is a mismatch in scale's c
+        /// If there is a mismatch in scale's components, this determines whether to use the smaller component or larger component
         /// </summary>
         public bool UseSmallerScale { get; set; } = false;
 
@@ -37,6 +37,8 @@ namespace restep.Core.Collision
         }
 
         public override ColliderType Type { get { return ColliderType.CT_CIRCLE; } }
+
+        public override float InertiaTensor => (Mass * Radius * Radius) / 2.0f;
 
         public CircleCollider(GameObject owner, float radius) : base(owner)
         {
