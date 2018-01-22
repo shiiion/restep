@@ -1,2 +1,2 @@
 # restep
-a better fucking version of stepmania
+Not really restep, just a 2-D engine kind-of deal
